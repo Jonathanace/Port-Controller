@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 import pytz
 
-def save_to_logfile(comment: str):
+def save_to_logfile(event: str):
 
     pst_timezone = pytz.timezone("America/Los_Angeles")
     date = datetime.now(pst_timezone)
@@ -16,9 +16,9 @@ def save_to_logfile(comment: str):
 
     with open(filename, 'a+') as file: # Open file and create if not already existing
 
-        curr_time = date.strftime('%Y-%m-%d %H:%M') # get current date, time in year, month, day hour, minutes
-        file.write(curr_time + '\n') # Write curr time in file
+        curr_time = date.strftime('%B %d %Y %H:%M ') # get current date, time in year, month, day hour, minutes
+        file.write(curr_time + event + '\n') # Write timestamp + event onto logfile 
 
-        file.close()
+        file.close() #  close file
 
     
