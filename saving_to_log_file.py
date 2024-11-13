@@ -5,7 +5,8 @@ import pytz
 def save_to_logfile(comment: str):
 
     pst_timezone = pytz.timezone("America/Los_Angeles")
-    current_date_pst = datetime.now(pst_timezone).date() #get current date
+    date = datetime.now(pst_timezone)
+    current_date_pst = date.date() #get current date
 
     curr_year = current_date_pst.year #get current year 
 
@@ -13,8 +14,10 @@ def save_to_logfile(comment: str):
 
     print(filename)
 
-    with open(filename, 'a+') as file:
-        file.write("Testing")
+    with open(filename, 'a+') as file: # Open file and create if not already existing
+
+        curr_time = date.strftime('%Y-%m-%d %H:%M') # get current date, time in year, month, day hour, minutes
+        file.write(curr_time + '\n') # Write curr time in file
 
         file.close()
 
