@@ -5,6 +5,11 @@
 #Node: numpy array to represent ship grid
 #Grid container
 from utils import Item
+from utils import parse_manifest
+from states import Grid
+from states import toGrid
+import numpy as np
+
 def canBalance(items: list["Item"]) -> bool:
     """Checks if the ship can be balanced
     
@@ -27,4 +32,16 @@ def canBalance(items: list["Item"]) -> bool:
     return False
 
 #Each step contains start pos and end pos
-def balance(items: list["Item"]) #-> output:
+def balance(items: list["Item"]): #-> output:
+    if canBalance(items) == False:
+        #SIFT Here
+        return(0)
+    res = toGrid(items)
+    return(res)
+
+with open(f"SilverQueen.txt") as f:
+    res = parse_manifest(f.read())
+    arr = balance(res)
+    for row in arr:
+        for square in row:
+            print(square.position, square.name, square.weight, square.isHull, square.isEmpty)
