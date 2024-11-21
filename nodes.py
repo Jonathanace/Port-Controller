@@ -1,23 +1,23 @@
 from states import Grid 
-from states import toGrid
+from states import to_grid
 from utils import parse_manifest
 from utils import Item
 class Node:
-    def __init__(self, ship, holdingArea = None, trucks = False, previousNode = None):
+    def __init__(self, ship, holding_area = None, trucks = False, previous_node = None):
         self.ship = ship
-        self.holdingArea = holdingArea
+        self.holding_area = holding_area
         self.trucks = trucks
-        self.previousNode = previousNode
-        self.childNodes = []
+        self.previous_node = previous_node
+        self.child_nodes = []
     # checks if there is anything above the container, will be used in the move function
     # index [x,y]
     def check_above(self,index: tuple[int,int]) -> bool:
-        if self.ship[index[0]][index[1]+1].isEmpty == True:
+        if self.ship[index[0] + 1][index[1]].is_empty == True:
             return True
         return False
     # checks which possibe spot they can move to
     #index[x,y]
-    def check_avaiable(self,index: tuple[int,int]):
+    def check_available(self,index: tuple[int,int]):
         available_moves = []
         #columns
         for j in range(len(self.ship[0])):
@@ -27,11 +27,11 @@ class Node:
             i = len(self.ship) -1 
             while i >= 0:
                 print(i, j, self.ship[i][j].position, self.ship[i][j].name)
-                if self.ship[i][j].isEmpty == False:
+                if self.ship[i][j].is_empty == False:
                     print(self.ship[i][j].position, self.ship[i][j].name)
                     available_moves.append([i+1,j])
                     break
-                if j == 0:
+                if i == 0:
                     print(self.ship[i][j].position, self.ship[i][j].name)
                     available_moves.append([i,j])
                     break
@@ -42,6 +42,6 @@ class Node:
 
 with open(f"SilverQueen.txt") as f:
     res = parse_manifest(f.read())
-shipSilverQueen  = toGrid(res)
+shipSilverQueen  = to_grid(res)
 startNode = Node(shipSilverQueen)
-print(startNode.check_avaiable([1,2]))
+print(startNode.check_available([1,1]))

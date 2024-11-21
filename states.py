@@ -3,47 +3,47 @@ from utils import Item
 import numpy as np
 
 class Grid:
-    isHull: bool
-    isEmpty: bool
+    is_hull: bool
+    is_empty: bool
     weight: int
     name: str
     position: tuple[int, int]
-    def __init__(self, isHull, isEmpty, position, weight=None, name=None):
-        self.isHull = isHull
-        self.isEmpty = isEmpty
+    def __init__(self, is_hull, is_empty, position, weight=None, name=None):
+        self.is_hull = is_hull
+        self.is_empty = is_empty
         self.position = position
-        if isHull == False and isEmpty == False:
-            self.setContainer(weight, name)
+        if is_hull == False and is_empty == False:
+            self.set_container(weight, name)
         else:
             self.weight = weight
             self.name = name
     
-    def setEmpty(self):
-        self.isEmpty = True
+    def set_empty(self):
+        self.is_empty = True
         self.weight = 0
         self.name = "UNUSED"
     
-    def setContainer(self, weight, name):
-        self.isHull = False
-        self.isEmpty = False
+    def set_container(self, weight, name):
+        self.is_hull = False
+        self.is_empty = False
         self.weight = weight
         self.name = name    
 
-def toGrid(items: list["Item"]) -> np.array:
+def to_grid(items: list["Item"]) -> np.array:
     grid = np.empty((8, 12), dtype=Grid)
     for item in items:
         # print(item['location'])
         # print(item['weight'])
         # print(item['company'])
-        isHull = False
-        isEmpty = False
+        is_hull = False
+        is_empty = False
         if item['weight'] == 0:
             if item['company'] == "UNUSED":
-                isEmpty = True
+                is_empty = True
             if item['company'] == "NAN":
-                isHull = True
+                is_hull = True
         pos = item['location']
-        temp = Grid(isHull, isEmpty, pos, item['weight'], item['company'])
+        temp = Grid(is_hull, is_empty, pos, item['weight'], item['company'])
         x = pos[0]
         y = pos[1]
         grid[x - 1, y - 1] = temp
