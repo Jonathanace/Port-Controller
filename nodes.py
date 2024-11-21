@@ -72,6 +72,27 @@ class Node:
                     #print(self.ship[index[0],index[1]].name)
                     print(f"Moved {item} off of ship from location:  {index[0] + 1} , {index[1] + 1}" )
         return
+    def check_available_load(self):
+        available_moves = []
+        for j in range(len(self.ship[0])):
+            #rows
+            i = len(self.ship) -1 
+            while i >= 0:
+                print(i, j, self.ship[i][j].position, self.ship[i][j].name)
+                if self.ship[i][j].is_empty == False:
+                    print(self.ship[i][j].position, self.ship[i][j].name)
+                    available_moves.append([i+1,j])
+                    break
+                if i == 0:
+                    print(self.ship[i][j].position, self.ship[i][j].name)
+                    available_moves.append([i,j])
+                    break
+                i = i -1
+        return available_moves
+    def load_ship(self, itemlist):
+        return
+            
+
 
 
 with open(f"ShipCase1.txt") as f:
@@ -108,3 +129,4 @@ while cat_amount > 0:
 
 case2 = to_grid(res2)
 Load_case = Node(case2)
+Load_case.possible_locations_load()
