@@ -49,9 +49,3 @@ def toGrid(items: list["Item"]) -> np.array:
         grid[x - 1, y - 1] = temp
     return grid
 
-with open(f"SilverQueen.txt") as f:
-    res = parse_manifest(f.read())
-    arr = toGrid(res)
-    for row in arr:
-        for square in row:
-            print(square.name, square.weight, square.isHull, square.isEmpty)
