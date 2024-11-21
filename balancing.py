@@ -45,6 +45,9 @@ def balance(items: list["Item"]):
     explored = []
     steps = []
     goal_reached = False
+    # first = tuple([1, 1])
+    # second = tuple([0, 3])
+    # arr = swap_squares(start, first, second)
     while goal_reached == False:
         temp_frontier = []
         for state in frontier:
@@ -56,7 +59,7 @@ def balance(items: list["Item"]):
                 available = state.check_available(temp)
                 
             
-    return(movable)
+    return(arr)
 
 def movable_containers(ship: Node):
     curr = ship.ship
@@ -88,7 +91,18 @@ def is_balanced(ship: Node):
     if diff < 1.1:
         return True
     return False
-        
+
+def swap_squares(ship: Node, first_obj: tuple[int, int], second_obj: tuple[int, int]):
+    curr = ship.ship
+    temp = curr[first_obj[0]][first_obj[1]]
+    curr[first_obj[0]][first_obj[1]] = curr[second_obj[0]][second_obj[1]]
+    curr[second_obj[0]][second_obj[1]] = temp
+    new_pos1 = tuple([first_obj[0] + 1, first_obj[1] + 1])
+    new_pos2 = tuple([second_obj[0] + 1, second_obj[1] + 1])
+    curr[first_obj[0]][first_obj[1]].position = new_pos1
+    curr[second_obj[0]][second_obj[1]].position = new_pos2
+    return curr
+    
 
 with open(f"SilverQueen.txt") as f:
     import time
@@ -96,7 +110,8 @@ with open(f"SilverQueen.txt") as f:
     res = parse_manifest(f.read())
     arr = balance(res)
     end_time = time.time()
-    for square in arr:
-        print(square)
+    for row in arr:
+        for square in row:
+            print(square.position, square.name)
     time_spent = end_time - start_time
     print(time_spent, "seconds spent")
