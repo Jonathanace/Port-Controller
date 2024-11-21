@@ -47,16 +47,22 @@ class Node:
                 if self.ship[i][j].name == item:
                     index_list.append([i,j])
         if len(index_list) == 0:
-            return "Item not in ship"
+            return index_list
         return index_list
+    def item_amount(self, item):
+        amount = 0
+        for i in range(len(self.ship)):
+            for j in range(len(self.ship)):
+                if self.ship[i][j].name == item:
+                    amount+=1
+        return amount
     def unload_ship(self, itemlist):
         #indexes for every item on the ship
-        indexes_list = []
         for item in itemlist:
             possible_indexes = self.find_item(item)
-            print(possible_indexes)
+            if len(possible_indexes) == 0:
+                break
             for index in possible_indexes:
-                print(index)
                 if self.check_above(index):
                     #print(self.ship[index[0],index[1]].name)
                     temp_ship = self.ship
@@ -65,8 +71,8 @@ class Node:
                     self.child_nodes.append(child_node)
                     #print(self.ship[index[0],index[1]].name)
                     print(f"Moved {item} off of ship from location:  {index[0] + 1} , {index[1] + 1}" )
+        return
 
-        return indexes_list
 
 with open(f"ShipCase1.txt") as f:
     res1 = parse_manifest(f.read())
@@ -85,4 +91,20 @@ with open(f"SilverQueen.txt") as f:
 
 case1  = to_grid(res1) 
 Unload_Case = Node(case1)
-print(Unload_Case.unload_ship(["Cat"]))
+
+
+cat_amount = Unload_Case.item_amount("Cat")
+print(cat_amount)
+curr_node = Unload_Case
+frontier = [curr_node]
+curr_node.unload_ship(["Cat"])
+while cat_amount > 0:
+    curr_node.unload_ship(["Cat"])
+    frontier.pop(0)
+    for child in curr_node.child_nodes:
+        frontier.append(child)
+    curr_node = frontier[0]
+    cat_amount = curr_node.item_amount("Cat")
+
+case2 = to_grid(res2)
+Load_case = Node(case2)
