@@ -9,6 +9,7 @@ from utils import parse_manifest
 from states import Grid
 from states import to_grid
 from nodes import Node
+from step import Step
 import numpy as np
 
 def can_balance(items: list["Item"]) -> bool:
@@ -73,7 +74,21 @@ def movable_containers(ship: Node):
 
 def is_balanced(ship: Node):
     curr = ship.ship
-    
+    left = 0
+    right = 0
+    for i in range(6):
+        j = i + 6
+        for n in range(len(curr) - 1):
+            temp_left = curr[n][i]
+            temp_right = curr[n][j]
+            left += temp_left.weight
+            right += temp_right.weight
+    #max(weight(port),weight(starboard)) / min(weight(port),weight(starboard)) < 1.1
+    diff = max(left, right) / min(left, right)
+    if diff < 1.1:
+        return True
+    return False
+        
 
 with open(f"SilverQueen.txt") as f:
     import time
