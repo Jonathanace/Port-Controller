@@ -55,11 +55,16 @@ class Node:
         for item in itemlist:
             possible_indexes = self.find_item(item)
             print(possible_indexes)
-            valid_indexes = []
             for index in possible_indexes:
+                print(index)
                 if self.check_above(index):
-                    valid_indexes.append(index)
-            indexes_list.append(valid_indexes)
+                    #print(self.ship[index[0],index[1]].name)
+                    temp_ship = self.ship
+                    temp_ship[index[0],index[1]].set_empty()
+                    child_node = Node(temp_ship, previous_node= self)
+                    self.child_nodes.append(child_node)
+                    #print(self.ship[index[0],index[1]].name)
+                    print(f"Moved {item} off of ship from location:  {index[0] + 1} , {index[1] + 1}" )
 
         return indexes_list
 
