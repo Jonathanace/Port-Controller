@@ -52,7 +52,7 @@ def balance(items: list["Item"]):
         temp_frontier = []
         for state in frontier:
             if is_balanced(state) == True:
-                print("Balanced")
+                # print("Balanced")
                 goal_reached = True
                 return state
             movable = movable_containers(state)
@@ -72,6 +72,66 @@ def balance(items: list["Item"]):
                             exists = True
                             break
                     if exists == False:
-                        print("Added")
+                        # print("Added")
                         temp_frontier.append(child_node)
-            ex
+            explored.append(state.ship)
+        frontier = []
+        for new_state in temp_frontier:
+            frontier.append(new_state)
+    return start
+
+def movable_containers(ship: Node):
+    curr = ship.ship
+    movable = []
+    for i in range(len(curr[0])):
+        j = len(curr) - 1
+        while j >= 0:
+            if curr[j][i].is_empty == False and curr[j][i].is_hull == False:
+                temp = tuple([j, i])
+                if ship.check_above(temp) == True:
+                    movable.append(temp)
+                    break
+            j -= 1
+    return movable
+
+def is_balanced(ship: Node):
+    curr = ship.ship
+    left = 0
+    right = 0
+    for i in range(6):
+        j = i + 6
+        for n in range(len(curr) - 1):
+            temp_left = curr[n][i]
+            temp_right = curr[n][j]
+            left += temp_left.weight
+            right += temp_right.weight
+    #max(weight(port),weight(starboard)) / min(weight(port),weight(starboard)) < 1.1
+    diff = min(left, right) / max(left, right)
+    if diff > 0.9:
+        # print(left, right)
+        return True
+    return False
+
+def swap_squares(ship: Node, first_obj: tuple[int, int], second_obj: tuple[int, int]):
+    curr = copy.deepcopy(ship.ship)
+    temp = curr[first_obj[0]][first_obj[1]]
+    curr[first_obj[0]][first_obj[1]] = curr[second_obj[0]][second_obj[1]]
+    curr[second_obj[0]][second_obj[1]] = temp
+    new_pos1 = tuple([first_obj[0] + 1, first_obj[1] + 1])
+    new_pos2 = tuple([second_obj[0] + 1, second_obj[1] + 1])
+    curr[first_obj[0]][first_obj[1]].position = new_pos1
+    curr[second_obj[0]][second_obj[1]].position = new_pos2
+    return curr
+    
+
+# with open(f"SilverQueen.txt") as f:
+#     import time
+#     start_time = time.time()
+#     res = parse_manifest(f.read())
+#     arr = balance(res)
+#     end_time = time.time()
+#     for row in arr.ship:
+#         for square in row:
+#             print(square.position, square.name, square.weight)
+#     time_spent = end_time - start_time
+#     print(time_spent, "seconds spent")
