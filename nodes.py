@@ -39,9 +39,3 @@ class Node:
                 
         print(available_moves)
         return available_moves
-
-with open(f"SilverQueen.txt") as f:
-    res = parse_manifest(f.read())
-shipSilverQueen  = to_grid(res)
-startNode = Node(shipSilverQueen)
-print(startNode.check_available([1,1]))
