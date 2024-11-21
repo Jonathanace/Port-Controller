@@ -25,11 +25,9 @@ class Node:
             
             j = len(self.ship[i]) -1 
             while j >= 0:
-                print(i,j)
-                
+                print(self.ship[i][j].name, self.ship[i][j].position, self.ship[i][j].isEmpty,self.ship[i][j].isHull)
                 if self.ship[i][j].isEmpty == False:
-                    print(self.ship[i][j].name)
-                    available_moves.append([i+1,j])
+                    available_moves.append([i,j+1])
                     break
                 if j == 0:
                     available_moves.append([i,j])
@@ -41,7 +39,5 @@ class Node:
 with open(f"SilverQueen.txt") as f:
     res = parse_manifest(f.read())
 shipSilverQueen  = toGrid(res)
-print(len(shipSilverQueen))
-print(len(shipSilverQueen[0]))
 startNode = Node(shipSilverQueen)
 print(startNode.check_avaiable([1,2]))
