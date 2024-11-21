@@ -19,21 +19,25 @@ class Node:
     #index[x,y]
     def check_avaiable(self,index: tuple[int,int]):
         available_moves = []
-        for i in range(len(self.ship)):
-            if i == index[0]:
-                continue
-            
-            j = len(self.ship[i]) -1 
-            while j >= 0:
-                print(self.ship[i][j].name, self.ship[i][j].position, self.ship[i][j].isEmpty,self.ship[i][j].isHull)
+        #columns
+        for j in range(len(self.ship[0])):
+            if j == index[1]:
+                    continue
+            #rows
+            i = len(self.ship) -1 
+            while i >= 0:
+                print(i, j, self.ship[i][j].position, self.ship[i][j].name)
                 if self.ship[i][j].isEmpty == False:
-                    available_moves.append([i,j+1])
+                    print(self.ship[i][j].position, self.ship[i][j].name)
+                    available_moves.append([i+1,j])
                     break
                 if j == 0:
+                    print(self.ship[i][j].position, self.ship[i][j].name)
                     available_moves.append([i,j])
-                j = j -1
+                    break
+                i = i -1
                 
-            
+        print(available_moves)
         return available_moves
 
 with open(f"SilverQueen.txt") as f:
