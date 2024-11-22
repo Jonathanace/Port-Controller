@@ -220,7 +220,7 @@ def time_estimate(curr: Node, prev: Node):
     curr_ship = curr.ship
     positions = []
     if(prev == None):
-        print("This is the start state")
+        #print("This is the start state")
         return positions
     prev_ship = prev.ship
     changes = 0
@@ -273,16 +273,16 @@ def get_balancing_steps(items: list["Item"]):
     res = []
     curr = balance(items)
     while(curr != None):
-        for i in range(len(curr.ship)):
-            print("[", end="")
-            for j in range(len(curr.ship[i])):
-                print(curr.ship[i][j].weight, end=" ")
-            print("]", end="\n")
+        # for i in range(len(curr.ship)):
+        #     print("[", end="")
+        #     for j in range(len(curr.ship[i])):
+        #         print(curr.ship[i][j].weight, end=" ")
+        #     print("]", end="\n")
         prev = curr.previous_node
         if(prev == None):
             break
         time_estimation, positions = time_estimate(curr, prev)
-        print(time_estimation)
+        #print(time_estimation)
         p = positions[0]
         x = p[0]
         y = p[1]
@@ -311,13 +311,13 @@ def get_balancing_steps(items: list["Item"]):
     return res
     
 
-with open(f"ShipCase4.txt") as f:
-    import time
-    start_time = time.time()
-    res = parse_manifest(f.read())
-    arr = get_balancing_steps(res)
-    end_time = time.time()
-    for square in arr:
-        print(square.start_pos, square.end_pos, square.time_estimate)
-    time_spent = end_time - start_time
-    print(time_spent, "seconds spent")
+# with open(f"SilverQueen.txt") as f:
+#     import time
+#     start_time = time.time()
+#     res = parse_manifest(f.read())
+#     arr = get_balancing_steps(res)
+#     end_time = time.time()
+#     for square in arr:
+#         print(square.start_pos, square.end_pos, square.time_estimate)
+#     time_spent = end_time - start_time
+#     print(time_spent, "seconds spent")
