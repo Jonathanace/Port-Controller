@@ -21,25 +21,61 @@ class Node:
     #index[x,y]
     def check_available(self,index: tuple[int,int]):
         available_moves = []
-        temp = self.ship[index[0], index[1]]
-        print(temp.position, temp.name)
-        #columns
-        for j in range(len(self.ship[0])):
-            if j == index[1]:
-                    continue
-            #rows
-            i = len(self.ship) -1 
-            while i >= 0:
-                print(i, j, self.ship[i][j].position, self.ship[i][j].name)
-                if self.ship[i][j].is_empty == False:
-                    print(self.ship[i][j].position, self.ship[i][j].name)
-                    if i + 1 < 8:
-                        available_moves.append([i+1,j])
-                    break
-                if i == 0:
-                    print(self.ship[i][j].position, self.ship[i][j].name)
-                    available_moves.append([i,j])
-                    break
-                i = i -1
+        # temp = self.ship[index[0], index[1]]
+        # print(temp.position, temp.name)
+        # #columns
+        # for j in range(len(self.ship[0])):
+        #     if j == index[1]:
+        #             continue
+        #     #rows
+        #     i = len(self.ship) -1 
+        #     while i >= 0:
+        #         print(i, j, self.ship[i][j].position, self.ship[i][j].name)
+        #         if self.ship[i][j].is_empty == False:
+        #             print(self.ship[i][j].position, self.ship[i][j].name)
+        #             if i + 1 < 8:
+        #                 available_moves.append([i+1,j])
+        #             break
+        #         if i == 0:
+        #             print(self.ship[i][j].position, self.ship[i][j].name)
+        #             available_moves.append([i,j])
+        #             break
+        #         i = i -1
+        column = index[1]
+        l = column - 1
+        r = column + 1
+        while l >= 0 or r < len(self.ship[0]):
+            if l >= 0:
+                left_temp = self.check_column(l)
+                available_moves.append(left_temp)
+                l -= 1
+            if r < len(self.ship[0]):
+                right_temp = self.check_column(r)
+                available_moves.append(right_temp)
+                r += 1
         # print(available_moves)
         return available_moves
+
+    #Helper function that finds the highest empty square in a column
+    def check_column(self, col: int):
+        curr = self.ship
+        n = 7
+        res = tuple([0,0])
+        while n >= 0:
+            if curr[n][col].is_empty == False:
+                if n + 1 < 8:
+                    res = tuple([n + 1, col])
+                    return res
+            if n == 0:
+                res = tuple([n, col])
+                return res
+            n -= 1
+        res = tuple([n, col])
+        return res
+
+
+with open(f"SilverQueen.txt") as f:
+    res = parse_manifest(f.read())
+shipSilverQueen  = to_grid(res)
+startNode = Node(shipSilverQueen)
+print(startNode.check_available([1,1]))
