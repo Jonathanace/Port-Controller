@@ -195,16 +195,16 @@ def get_balancing_steps(items: list["Item"]):
     return res
     
 
-with open(f"ShipCase5.txt") as f:
-    import time
-    start_time = time.time()
-    res = parse_manifest(f.read())
-    arr = get_balancing_steps(res)
-    end_time = time.time()
-    for square in arr:
-        print("Start position:", square.start_pos, end=", ")
-        print("End position:", square.end_pos, end=", ")
-        print("Time estimated:", square.time_estimate, end=" ")
-        print("minutes")
-    time_spent = end_time - start_time
-    print(time_spent, "seconds spent")
+# with open(f"ShipCase4.txt") as f:
+#     import time
+#     start_time = time.time()
+#     res = parse_manifest(f.read())
+#     arr = get_balancing_steps(res)
+#     end_time = time.time()
+#     for square in arr:
+#         print("Start position:", square.start_pos, end=", ")
+#         print("End position:", square.end_pos, end=", ")
+#         print("Time estimated:", square.time_estimate, end=" ")
+#         print("minutes")
+#     time_spent = end_time - start_time
+#     print(time_spent, "seconds spent")
