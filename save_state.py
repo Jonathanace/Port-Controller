@@ -7,6 +7,7 @@ import string
 # manifest file name 
 # and store into file
 # example: displaying balancing step 5 and after moving onto step 6, save_state("balancing", solution_steps, 5, "ShipCase1.txt") 
+# There are two types of operations: 1. "load/unload" 2. "balancing"
 def save_state(operation: string, objects, curr_step: int, manifest: string): 
     try:
         with open("state.pkl", 'wb') as file:
