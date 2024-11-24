@@ -9,6 +9,7 @@ class Node:
         self.trucks = trucks
         self.previous_node = previous_node
         self.child_nodes = []
+    
     # checks if there is anything above the container, will be used in the move function
     # index [x,y]
     def check_above(self,index: tuple[int,int]) -> bool:
@@ -17,30 +18,11 @@ class Node:
         if self.ship[index[0] + 1][index[1]].is_empty == True:
             return True
         return False
+    
     # checks which possibe spot they can move to
     #index[x,y]
     def check_available(self,index: tuple[int,int]):
         available_moves = []
-        # temp = self.ship[index[0], index[1]]
-        # print(temp.position, temp.name)
-        # #columns
-        # for j in range(len(self.ship[0])):
-        #     if j == index[1]:
-        #             continue
-        #     #rows
-        #     i = len(self.ship) -1 
-        #     while i >= 0:
-        #         print(i, j, self.ship[i][j].position, self.ship[i][j].name)
-        #         if self.ship[i][j].is_empty == False:
-        #             print(self.ship[i][j].position, self.ship[i][j].name)
-        #             if i + 1 < 8:
-        #                 available_moves.append([i+1,j])
-        #             break
-        #         if i == 0:
-        #             print(self.ship[i][j].position, self.ship[i][j].name)
-        #             available_moves.append([i,j])
-        #             break
-        #         i = i -1
         column = index[1]
         l = column - 1
         r = column + 1
@@ -53,7 +35,6 @@ class Node:
                 right_temp = self.check_column(r)
                 available_moves.append(right_temp)
                 r += 1
-        # print(available_moves)
         return available_moves
 
     #Helper function that finds the highest empty square in a column
@@ -74,8 +55,8 @@ class Node:
         return res
 
 
-with open(f"SilverQueen.txt") as f:
-    res = parse_manifest(f.read())
-shipSilverQueen  = to_grid(res)
-startNode = Node(shipSilverQueen)
-print(startNode.check_available([1,1]))
+# with open(f"SilverQueen.txt") as f:
+#     res = parse_manifest(f.read())
+# shipSilverQueen  = to_grid(res)
+# startNode = Node(shipSilverQueen)
+# print(startNode.check_available([1,1]))
