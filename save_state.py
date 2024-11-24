@@ -11,7 +11,7 @@ import string
 def save_state(operation: string, objects, curr_step: int, manifest: string): 
     try:
         with open("state.pkl", 'wb') as file:
-            pickle.dump([objects, curr_step, manifest], file)
+            pickle.dump([operation, objects, curr_step, manifest], file)
     except:
         print("Could not save state into file")
 
