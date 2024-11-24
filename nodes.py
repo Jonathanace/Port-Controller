@@ -126,7 +126,3 @@ while cat_amount > 0:
         frontier.append(child)
     curr_node = frontier[0]
     cat_amount = curr_node.item_amount("Cat")
-
-case2 = to_grid(res2)
-Load_case = Node(case2)
-Load_case.possible_locations_load()
