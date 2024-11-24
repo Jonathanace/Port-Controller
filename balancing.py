@@ -8,6 +8,13 @@ import numpy as np
 import copy
 import sys
 
+'''
+    TO DO:
+        Edit check_movable so that instead of iterating from column 1 to column 12, it iterates from column 6 to column 1 and column 7 to column 12. Use two pointers in one loop.
+'''
+
+
+
 #Checks if a ship can be balanced by looking through each combination of containers and seeing if any pair of sums is within 10% of each other.
 def can_balance(items: list["Item"]) -> bool:
     arr = []
@@ -87,6 +94,7 @@ def balance(items: list["Item"]):
             frontier.append(new_state)
     return start
 
+#Creates a list of containers that can be moved.
 def movable_containers(ship: Node):
     curr = ship.ship
     movable = []
@@ -188,20 +196,21 @@ def get_balancing_steps(items: list["Item"]):
         else:
             start_pos = positions[1]
             end_pos = positions[0]
-        temp = Step(start_pos, end_pos, time_estimation)
+        temp = Step(start_pos, end_pos, time_estimation, "Balance")
         res.append(temp)
         curr = prev
     res.reverse()
     return res
     
 
-# with open(f"ShipCase4.txt") as f:
+# with open(f"ShipCase3.txt") as f:
 #     import time
 #     start_time = time.time()
 #     res = parse_manifest(f.read())
 #     arr = get_balancing_steps(res)
 #     end_time = time.time()
 #     for square in arr:
+#         print("Operation type", square.movement_type, end=": ")
 #         print("Start position:", square.start_pos, end=", ")
 #         print("End position:", square.end_pos, end=", ")
 #         print("Time estimated:", square.time_estimate, end=" ")
