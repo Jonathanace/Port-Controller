@@ -24,7 +24,7 @@ with open(f"SilverQueen.txt") as f:
 
 
 case1  = to_grid(res1) 
-Unload_Case = Node(case1)
+Case1 = Node(case1)
 
 unload = [("Cat", 1)]
 # cargo = (unload[0], unload[1] -1)
@@ -43,16 +43,23 @@ def calculate_goal_state(unload : list[tuple[str,int]] = None,load : list[tuple[
 
     return goal_state
 print(calculate_goal_state(unload= unload))
-def find_item_amount(items : list[str], ship):
+def find_item_amount(item : str, ship):
     count = 0 
-    for item in items:
-        for i in range(len(ship)):
-            for j in range(len(ship[0])):
-                if ship[i][j].name == item:
-                    count += 1
+    for i in range(len(ship)):
+        for j in range(len(ship[0])):
+            if ship[i][j].name == item:
+                count += 1
     return count
-print(find_item_amount(["Cat"], Unload_Case.ship))
+print(find_item_amount("Cat", Case1.ship))
 
+def get_initial_state(items_moved : list[str] , ship):
+    initial_state = []
+    for item in items_moved:
+        item_count = find_item_amount(item, ship)
+        cargo = (item, item_count)
+        initial_state.append(cargo)
+    return initial_state
+print(get_initial_state(["Cat"], Case1.ship))
 
 
 
