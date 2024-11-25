@@ -44,7 +44,7 @@ def calculate_goal_state(unload : list[tuple[str,int]] = None,load : list[tuple[
             goal_state.append(final_cargo)
 
     return goal_state
-print(calculate_goal_state(unload= unload))
+# print(calculate_goal_state(unload, None))
 def find_item_amount(item : str, ship):
     count = 0 
     for i in range(len(ship)):
@@ -52,9 +52,9 @@ def find_item_amount(item : str, ship):
             if ship[i][j].name == item:
                 count += 1
     return count
-print(find_item_amount("Cat", Case1.ship))
+# print(find_item_amount("Cat", Case1.ship))
 
-# gets the initial state of the ship
+# gets the initial state of the ship 
 # returns an array of tuples containing the items, and the current amount of each item
 def get_initial_state(items_moved : list[str] , ship):
     initial_state = []
@@ -63,7 +63,7 @@ def get_initial_state(items_moved : list[str] , ship):
         cargo = (item, item_count)
         initial_state.append(cargo)
     return initial_state
-print(get_initial_state(["Cat"], Case1.ship))
+# print(get_initial_state(["Cat"], Case1.ship))
 
 #gets the index of an item on the ship
 def get_item_index(item,ship):
@@ -73,7 +73,7 @@ def get_item_index(item,ship):
             if ship[i][j].name == item:
                     index_list.append([i,j])
     return index_list
-print(get_item_index("Cat", Case1.ship))
+# print(get_item_index("Cat", Case1.ship))
 
 # returns a list of child nodes
 def unload_item(item,initial_node):
@@ -94,7 +94,7 @@ print(len(Case1.ship[0]))
 # temp_ship[0,1].set_empty()
 # child_Node = Node(temp_ship, previous_node= Case1)
 # print(child_Node.ship[0,1].name)
-print(Case2.check_aviable_load())
+# print(Case2.check_aviable_load())
 def load_item(item,initial_node):
     available_indexes = initial_node.check_aviable_load()
     weight = int(input("Weight of item:"))
@@ -105,11 +105,41 @@ def load_item(item,initial_node):
          child_node = Node(temp_ship, previous_node=initial_node)
          child_nodes.append(child_node)
     return child_nodes
-child_nodes_case_2 = load_item("Bat",Case2)
-child_node_1_case2 = child_nodes_case_2[0]
-print(child_node_1_case2.ship[3,0].name)   
+# child_nodes_case_2 = load_item("Bat",Case2)
+# child_node_1_case2 = child_nodes_case_2[0]
+# print(child_node_1_case2.ship[3,0].name)   
 
 
+def check_goal_state(curr_state,goal_state):
+    for i in range(len(curr_state)):
+        if curr_state[i] != goal_state[i]:
+            return False
+    return True
+unload = [("Cat", 1)]
+load = None
+case1_initial_state = get_initial_state(["Cat"], Case1.ship)
+case1_goal_state = calculate_goal_state(unload, load)
+# print(case1_initial_state)
+# print(case1_goal_state)
+# print(check_goal_state(case1_initial_state,case1_goal_state ))
+# print(check_goal_state(case1_goal_state,case1_goal_state ))
 def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None):
-    
+    goal_state = calculate_goal_state(unload, load)
+    items_moved = []
+    if unload is not None:
+        for item in unload:
+            items_moved.append(item[0])
+    if load is not None:
+        for item in load:
+            items_moved.append(item[0])
+            
+    initial_state = get_initial_state(items_moved, Case1.ship)
+    print(initial_state)
+    print(goal_state)
+    goal_reached = False
+    frontier = [initial_node]
+    explored = []
     curr_node = initial_node
+    while goal_reached == False:
+        temp_frontier = []
+unload_load(Case1, unload)
