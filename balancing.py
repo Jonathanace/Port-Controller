@@ -61,14 +61,13 @@ def balance(items: list["Item"]):
         temp_frontier = []
         for state in frontier:
             curr_weight_arr = []
-            temp_state = state.ship
             for q in range(len(state.ship)):
                 for w in range(len(state.ship[q])):
                     curr_weight_arr.append(state.ship[q][w].weight)
             if is_balanced(state) == True:
                 goal_reached = True
                 return state
-            movable = movable_containers(state)
+            movable = movable_centered(state)
             for container in movable:
                 x = container[0]
                 y = container[1]
@@ -94,20 +93,35 @@ def balance(items: list["Item"]):
             frontier.append(new_state)
     return start
 
-#Creates a list of containers that can be moved.
-def movable_containers(ship: Node):
-    curr = ship.ship
+#Creates a list of containers that can be moved starting from the center of the ship. Returns an array of tuples.
+def movable_centered(ship: Node):
     movable = []
-    for i in range(len(curr[0])):
-        j = len(curr) - 1
-        while j >= 0:
-            if curr[j][i].is_empty == False and curr[j][i].is_hull == False:
-                temp = tuple([j, i])
-                if ship.check_above(temp) == True:
-                    movable.append(temp)
-                    break
-            j -= 1
+    l = 4
+    r = 5
+    while l >= 0 or r < 12:
+        if l >= 0:
+            temp, exists = movable_column(ship, l)
+            if exists == True:
+                movable.append(temp)
+            l -= 1
+        if r < 12:
+            temp, exists = movable_column(ship, r)
+            if exists == True:
+                movable.append(temp)
+            r += 1
     return movable
+    
+#Helper function for movable_centered, checks for a movable container in a specified column. Returns a tuple of ints.
+def movable_column(ship: Node, col: int):
+    curr = ship.ship
+    n = 7
+    res = tuple([0,0])
+    while n >= 0:
+        if curr[n][col].is_empty == False and curr[n][col].is_hull == False:
+            res = tuple([n, col])
+            return res, True
+        n -= 1
+    return res, False
 
 #Checks if the ship is balanced. Ouputs a boolean.
 def is_balanced(ship: Node):
@@ -203,14 +217,14 @@ def get_balancing_steps(items: list["Item"]):
     return res
     
 
-# with open(f"ShipCase3.txt") as f:
+# with open(f"ShipCase1.txt") as f:
 #     import time
 #     start_time = time.time()
 #     res = parse_manifest(f.read())
 #     arr = get_balancing_steps(res)
 #     end_time = time.time()
 #     for square in arr:
-#         print("Operation type", square.movement_type, end=": ")
+#         print("Operation type is \'", square.movement_type, end=" \'; ")
 #         print("Start position:", square.start_pos, end=", ")
 #         print("End position:", square.end_pos, end=", ")
 #         print("Time estimated:", square.time_estimate, end=" ")
