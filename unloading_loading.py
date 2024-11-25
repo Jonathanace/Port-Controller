@@ -27,6 +27,8 @@ case1  = to_grid(res1)
 Case1 = Node(case1)
 case2  = to_grid(res2) 
 Case2 = Node(case2)
+case4 = to_grid(res4)
+Case4 = Node(case4)
 
 unload = [("Cat", 1)]
 # cargo = (unload[0], unload[1] -1)
@@ -74,9 +76,16 @@ def get_item_index(item,ship):
                     index_list.append([i,j])
     return index_list
 # print(get_item_index("Cat", Case1.ship))
-
-def unload_item_on_top():
-    return
+print(get_item_index("Doe", Case4.ship))
+print(Case4.ship[7,4].name)
+print(Case4.ship[6,4].name)
+def find_items_above(index,ship):
+    items_above = []
+    for i in range(len(ship)-1, index[0], -1):
+        if ship[i][index[1]].is_empty == False:
+            items_above.append([i,index[1]])     
+    return items_above
+print(find_items_above([6,4],Case4.ship))
 # returns a list of child nodes
 def unload_item(item,curr_node):
     child_nodes = []
@@ -85,8 +94,10 @@ def unload_item(item,curr_node):
         if curr_node.check_above((index[0],index[1])):
             temp_ship = copy.deepcopy(curr_node.ship)
             temp_ship[index[0],index[1]].set_empty()
-            child_node = Node(temp_ship, previous_node=curr_node)
+            child_node = Node(temp_ship, previous_node=curr_node, crane_pos = "Dock")
             child_nodes.append(child_node)
+        else:
+            child_nodes.append(1)
     return child_nodes
 # child_node_case1 = unload_item("Cat", Case1)
 # print(child_node_case1[0].ship[0,1].name)
@@ -104,7 +115,7 @@ def load_item(item,curr_node):
     for index in available_indexes:
          temp_ship = copy.deepcopy(curr_node.ship)
          temp_ship[index[0],index[1]].set_container(weight, item)
-         child_node = Node(temp_ship, previous_node=curr_node)
+         child_node = Node(temp_ship, previous_node=curr_node, crane_pos= "Ship")
          child_nodes.append(child_node)
     return child_nodes
 # child_nodes_case_2 = load_item("Bat",Case2)
@@ -175,12 +186,14 @@ def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[t
     frontier = [initial_node]
     explored = []
     curr_node = initial_node
+    curr_unload = unload
+    curr_load = load
     while goal_reached == False:
         curr_state = get_state(items_moved, curr_node.ship)
         if check_goal_state(curr_state, goal_state):
             return curr_node
         temp_frontier = []
-        if unload is not None:
+        if curr_unload is not None:
             for i in range(len(unload)):
                 if unload[i][1] > 0:
                     child_nodes = unload_item(unload[i][0],Case1)
@@ -189,7 +202,7 @@ def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[t
                         temp_frontier.append(child_node)
                 else: 
                     continue
-        if load is not None:
+        if curr_load is not None:
             for item in range(len(load)):
                 if load[i][1] > 0:
                     child_nodes = unload_item(load[i],Case1)

@@ -3,12 +3,13 @@ from states import to_grid
 from utils import parse_manifest
 from utils import Item
 class Node:
-    def __init__(self, ship, holding_area = None, trucks = False, previous_node = None):
+    def __init__(self, ship, holding_area = None, trucks = False, previous_node = None, crane_pos = "Start"):
         self.ship = ship
         self.holding_area = holding_area
         self.trucks = trucks
         self.previous_node = previous_node
         self.child_nodes = []
+        self.crane_pos = crane_pos
     
     # checks if there is anything above the container, will be used in the move function
     # index [x,y]
