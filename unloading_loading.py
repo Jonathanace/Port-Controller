@@ -25,6 +25,8 @@ with open(f"SilverQueen.txt") as f:
 
 case1  = to_grid(res1) 
 Case1 = Node(case1)
+case2  = to_grid(res2) 
+Case2 = Node(case2)
 
 unload = [("Cat", 1)]
 # cargo = (unload[0], unload[1] -1)
@@ -74,24 +76,40 @@ def get_item_index(item,ship):
 print(get_item_index("Cat", Case1.ship))
 
 # returns a list of child nodes
-def unload_item(item,inital_node):
+def unload_item(item,initial_node):
     child_nodes = []
-    index_list = get_item_index(item, inital_node.ship)
+    index_list = get_item_index(item, initial_node.ship)
     for index in index_list:
-        if inital_node.check_above((index[0],index[1])):
-            temp_ship = copy.deepcopy(inital_node.ship)
+        if initial_node.check_above((index[0],index[1])):
+            temp_ship = copy.deepcopy(initial_node.ship)
             temp_ship[index[0],index[1]].set_empty()
-            child_node = Node(temp_ship, previous_node=inital_node)
+            child_node = Node(temp_ship, previous_node=initial_node)
             child_nodes.append(child_node)
     return child_nodes
 child_node_case1 = unload_item("Cat", Case1)
 print(child_node_case1[0].ship[0,1].name)
+print(len(Case1.ship))
+print(len(Case1.ship[0]))
 # temp_ship = copy.deepcopy(Case1.ship)
 # temp_ship[0,1].set_empty()
 # child_Node = Node(temp_ship, previous_node= Case1)
 # print(child_Node.ship[0,1].name)
+print(Case2.check_aviable_load())
+def load_item(item,initial_node):
+    available_indexes = initial_node.check_aviable_load()
+    weight = int(input("Weight of item:"))
+    child_nodes= []
+    for index in available_indexes:
+         temp_ship = copy.deepcopy(initial_node.ship)
+         temp_ship[index[0],index[1]].set_container(weight, item)
+         child_node = Node(temp_ship, previous_node=initial_node)
+         child_nodes.append(child_node)
+    return child_nodes
+child_nodes_case_2 = load_item("Bat",Case2)
+child_node_1_case2 = child_nodes_case_2[0]
+print(child_node_1_case2.ship[3,0].name)   
 
-            
 
-
-
+def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None):
+    
+    curr_node = initial_node

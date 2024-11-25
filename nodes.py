@@ -53,8 +53,13 @@ class Node:
             n -= 1
         res = tuple([n, col])
         return res
+    def check_aviable_load(self):
+        available_moves = []
+        for j in range(len(self.ship[0])):
+            available_moves.append(self.check_column(j))
+        return available_moves
 
-
+                       
 # with open(f"SilverQueen.txt") as f:
 #     res = parse_manifest(f.read())
 # shipSilverQueen  = to_grid(res)
