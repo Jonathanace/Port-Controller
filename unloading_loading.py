@@ -52,6 +52,8 @@ def find_item_amount(item : str, ship):
     return count
 print(find_item_amount("Cat", Case1.ship))
 
+# gets the initial state of the ship
+# returns an array of tuples containing the items, and the current amount of each item
 def get_initial_state(items_moved : list[str] , ship):
     initial_state = []
     for item in items_moved:
@@ -61,59 +63,34 @@ def get_initial_state(items_moved : list[str] , ship):
     return initial_state
 print(get_initial_state(["Cat"], Case1.ship))
 
+#gets the index of an item on the ship
+def get_item_index(item,ship):
+    index_list = []
+    for i in range(len(ship)):
+        for j in range(len(ship)):
+            if ship[i][j].name == item:
+                    index_list.append([i,j])
+    return index_list
+print(get_item_index("Cat", Case1.ship))
 
+# returns a list of child nodes
+def unload_item(item,inital_node):
+    child_nodes = []
+    index_list = get_item_index(item, inital_node.ship)
+    for index in index_list:
+        if inital_node.check_above((index[0],index[1])):
+            temp_ship = copy.deepcopy(inital_node.ship)
+            temp_ship[index[0],index[1]].set_empty()
+            child_node = Node(temp_ship, previous_node=inital_node)
+            child_nodes.append(child_node)
+    return child_nodes
+child_node_case1 = unload_item("Cat", Case1)
+print(child_node_case1[0].ship[0,1].name)
+# temp_ship = copy.deepcopy(Case1.ship)
+# temp_ship[0,1].set_empty()
+# child_Node = Node(temp_ship, previous_node= Case1)
+# print(child_Node.ship[0,1].name)
 
-# def find_item(self, item):
-#         index_list = []
-#         for i in range(len(self.ship)):
-#             for j in range(len(self.ship)):
-#                 if self.ship[i][j].name == item:
-#                     index_list.append([i,j])
-#         if len(index_list) == 0:
-#             return index_list
-#         return index_list
-# def item_amount(self, item):
-#         amount = 0
-#         for i in range(len(self.ship)):
-#             for j in range(len(self.ship)):
-#                 if self.ship[i][j].name == item:
-#                     amount+=1
-#         return amount
-#     def unload_ship(self, itemlist):
-#         #indexes for every item on the ship
-#         for item in itemlist:
-#             possible_indexes = self.find_item(item)
-#             if len(possible_indexes) == 0:
-#                 break
-#             for index in possible_indexes:
-#                 if self.check_above(index):
-#                     #print(self.ship[index[0],index[1]].name)
-#                     temp_ship = self.ship
-#                     temp_ship[index[0],index[1]].set_empty()
-#                     child_node = Node(temp_ship, previous_node= self)
-#                     self.child_nodes.append(child_node)
-#                     #print(self.ship[index[0],index[1]].name)
-#                     print(f"Moved {item} off of ship from location:  {index[0] + 1} , {index[1] + 1}" )
-#         return
-#     def check_available_load(self):
-#         available_moves = []
-#         for j in range(len(self.ship[0])):
-#             #rows
-#             i = len(self.ship) -1 
-#             while i >= 0:
-#                 print(i, j, self.ship[i][j].position, self.ship[i][j].name)
-#                 if self.ship[i][j].is_empty == False:
-#                     print(self.ship[i][j].position, self.ship[i][j].name)
-#                     available_moves.append([i+1,j])
-#                     break
-#                 if i == 0:
-#                     print(self.ship[i][j].position, self.ship[i][j].name)
-#                     available_moves.append([i,j])
-#                     break
-#                 i = i -1
-#         return available_moves
-#     def load_ship(self, itemlist):
-#         return
             
 
 
