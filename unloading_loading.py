@@ -56,13 +56,13 @@ def find_item_amount(item : str, ship):
 
 # gets the initial state of the ship 
 # returns an array of tuples containing the items, and the current amount of each item
-def get_initial_state(items_moved : list[str] , ship):
-    initial_state = []
+def get_state(items_moved : list[str] , ship):
+    state = []
     for item in items_moved:
         item_count = find_item_amount(item, ship)
         cargo = (item, item_count)
-        initial_state.append(cargo)
-    return initial_state
+        state.append(cargo)
+    return state
 # print(get_initial_state(["Cat"], Case1.ship))
 
 #gets the index of an item on the ship
@@ -76,14 +76,14 @@ def get_item_index(item,ship):
 # print(get_item_index("Cat", Case1.ship))
 
 # returns a list of child nodes
-def unload_item(item,initial_node):
+def unload_item(item,curr_node):
     child_nodes = []
-    index_list = get_item_index(item, initial_node.ship)
+    index_list = get_item_index(item, curr_node.ship)
     for index in index_list:
-        if initial_node.check_above((index[0],index[1])):
-            temp_ship = copy.deepcopy(initial_node.ship)
+        if curr_node.check_above((index[0],index[1])):
+            temp_ship = copy.deepcopy(curr_node.ship)
             temp_ship[index[0],index[1]].set_empty()
-            child_node = Node(temp_ship, previous_node=initial_node)
+            child_node = Node(temp_ship, previous_node=curr_node)
             child_nodes.append(child_node)
     return child_nodes
 child_node_case1 = unload_item("Cat", Case1)
@@ -95,14 +95,14 @@ print(len(Case1.ship[0]))
 # child_Node = Node(temp_ship, previous_node= Case1)
 # print(child_Node.ship[0,1].name)
 # print(Case2.check_aviable_load())
-def load_item(item,initial_node):
-    available_indexes = initial_node.check_aviable_load()
+def load_item(item,curr_node):
+    available_indexes = curr_node.check_aviable_load()
     weight = int(input("Weight of item:"))
     child_nodes= []
     for index in available_indexes:
-         temp_ship = copy.deepcopy(initial_node.ship)
+         temp_ship = copy.deepcopy(curr_node.ship)
          temp_ship[index[0],index[1]].set_container(weight, item)
-         child_node = Node(temp_ship, previous_node=initial_node)
+         child_node = Node(temp_ship, previous_node=curr_node)
          child_nodes.append(child_node)
     return child_nodes
 # child_nodes_case_2 = load_item("Bat",Case2)
@@ -115,31 +115,91 @@ def check_goal_state(curr_state,goal_state):
         if curr_state[i] != goal_state[i]:
             return False
     return True
+def change_amount(item : tuple[str,int] , movement ):
+    temp_item = list(item)
+    if movement == "L":
+        temp_item[1] += 1
+        item = tuple(temp_item)
+    if movement == "U":
+        temp_item[1] -= 1
+        item = tuple(temp_item)
+
+    return item
 unload = [("Cat", 1)]
 load = None
-case1_initial_state = get_initial_state(["Cat"], Case1.ship)
-case1_goal_state = calculate_goal_state(unload, load)
-# print(case1_initial_state)
+for i in range(len(unload)):
+    if unload[i][1] > 0:
+        child_nodes = unload_item(unload[i],Case1)
+        unload[i] = change_amount(unload[i], "U")
+    else: 
+        continue
+# for item in unload:
+#     if item[1] > 0:
+#         child_nodes = unload_item(item, Case1)
+#         item = change_amount(item , "U")
+#         print()
+#     else:
+#         continue
+print(unload)
+# case1_initial_state = get_state(["Cat"], Case1.ship)
+# case1_goal_state = calculate_goal_state(unload, load)
+# # print(case1_initial_state)
 # print(case1_goal_state)
 # print(check_goal_state(case1_initial_state,case1_goal_state ))
 # print(check_goal_state(case1_goal_state,case1_goal_state ))
+
+# return false if two states are different true if they are the same
+def check_two_states(ship1, ship2):
+    for i in range(len(ship1)):
+        for j in range(len(ship1[0])):
+            if ship1[i][j].name != ship2[i][j].name:
+                return False
+    return True
+print( check_two_states(child_node_case1,child_node_case1)
 def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None):
     goal_state = calculate_goal_state(unload, load)
     items_moved = []
+    unload_items = []
+    load_items = []
     if unload is not None:
         for item in unload:
             items_moved.append(item[0])
+            unload_items.append(item[0])
     if load is not None:
         for item in load:
             items_moved.append(item[0])
+            load_items.append(item[0])
             
-    initial_state = get_initial_state(items_moved, Case1.ship)
-    print(initial_state)
+    curr_state = get_state(items_moved, Case1.ship)
+    print(curr_state)
     print(goal_state)
     goal_reached = False
     frontier = [initial_node]
     explored = []
     curr_node = initial_node
     while goal_reached == False:
+        if check_goal_state(curr_state, goal_state):
+            return curr_node
         temp_frontier = []
-unload_load(Case1, unload)
+        if unload is not None:
+            for i in range(len(unload)):
+                if unload[i][1] > 0:
+                    child_nodes = unload_item(unload[i],Case1)
+                    unload[i] = change_amount(unload[i], "U")
+                    for child_node in child_nodes:
+                        temp_frontier.append(child_node)
+                else: 
+                    continue
+        if load is not None:
+            for item in range(len(load)):
+                if load[i][1] > 0:
+                    child_nodes = unload_item(load[i],Case1)
+                    unload[i] = change_amount(unload[i], "L")
+                    for child_node in child_nodes:
+                        temp_frontier.append(child_node)
+                else: 
+                    continue
+        explored.append(curr_node)
+        #TODO check if items in fro
+        
+        
