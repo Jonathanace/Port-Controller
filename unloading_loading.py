@@ -149,13 +149,13 @@ print(unload)
 # print(check_goal_state(case1_goal_state,case1_goal_state ))
 
 # return false if two states are different true if they are the same
-def check_two_states(ship1, ship2):
+def check_two_ships(ship1, ship2):
     for i in range(len(ship1)):
         for j in range(len(ship1[0])):
             if ship1[i][j].name != ship2[i][j].name:
                 return False
     return True
-print( check_two_states(child_node_case1,child_node_case1)
+print(check_two_ships(child_node_case1[0].ship,Case1.ship))
 def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None):
     goal_state = calculate_goal_state(unload, load)
     items_moved = []
