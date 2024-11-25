@@ -64,11 +64,11 @@ def balance(items: list["Item"]):
             if needs_sift == True:
                 if check_sifted(state, left, right) == True:
                     goal_reached = True
-                    return state
+                    return state, needs_sift
             else:
                 if is_balanced(state) == True:
                     goal_reached = True
-                    return state
+                    return state, needs_sift
             movable = movable_centered(state)
             for container in movable:
                 x = container[0]
@@ -93,7 +93,7 @@ def balance(items: list["Item"]):
         frontier = []
         for new_state in temp_frontier:
             frontier.append(new_state)
-    return start
+    return start, needs_sift
 
 #Creates a list of containers that can be moved starting from the center of the ship. Returns an array of tuples.
 def movable_centered(ship: Node):
@@ -195,7 +195,12 @@ def time_estimate(curr: Node, prev: Node):
 #Takes the output from the main balancing function and translates it into an array of step objects. Outputs the array. Intended to be used by front end, and will be the function that is called when the user selects the balancing option.
 def get_balancing_steps(items: list["Item"]):
     res = []
-    curr = balance(items)
+    curr, is_sifted = balance(items)
+    movement_type = "Balance"
+    if is_sifted == True:
+        movement_type = "SIFT"
+    else:
+        movement_type = "Balance"
     while(curr != None):
         prev = curr.previous_node
         if(prev == None):
@@ -212,24 +217,24 @@ def get_balancing_steps(items: list["Item"]):
         else:
             start_pos = positions[1]
             end_pos = positions[0]
-        temp = Step(start_pos, end_pos, time_estimation, "Balance")
+        temp = Step(start_pos, end_pos, time_estimation, movement_type)
         res.append(temp)
         curr = prev
     res.reverse()
     return res
     
 
-# with open(f"ShipCase5.txt") as f:
-#     import time
-#     start_time = time.time()
-#     res = parse_manifest(f.read())
-#     arr = get_balancing_steps(res)
-#     end_time = time.time()
-#     for square in arr:
-#         print("Operation type is \'", square.movement_type, end=" \'; ")
-#         print("Start position:", square.start_pos, end=", ")
-#         print("End position:", square.end_pos, end=", ")
-#         print("Time estimated:", square.time_estimate, end=" ")
-#         print("minutes")
-#     time_spent = end_time - start_time
-#     print(time_spent, "seconds spent")
+with open(f"ShipCase5.txt") as f:
+    import time
+    start_time = time.time()
+    res = parse_manifest(f.read())
+    arr = get_balancing_steps(res)
+    end_time = time.time()
+    for square in arr:
+        print("Operation type is \'", square.movement_type, end=" \'; ")
+        print("Start position:", square.start_pos, end=", ")
+        print("End position:", square.end_pos, end=", ")
+        print("Time estimated:", square.time_estimate, end=" ")
+        print("minutes")
+    time_spent = end_time - start_time
+    print(time_spent, "seconds spent")
