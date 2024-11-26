@@ -11,6 +11,8 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel"
 import { Textarea } from "@/components/ui/textarea"
+import { HeaderProvider } from "@/context/HeaderContext";
+import Header from "@/components/ui/Header"
 
 
 export function CarouselDApiDemo() {
