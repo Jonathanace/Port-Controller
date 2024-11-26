@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useState } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import React, { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { toast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
+import { toast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,8 +15,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useHeader } from "@/context/HeaderContext";
 
 // Define the form schema using Zod
 const FormSchema = z.object({
@@ -25,7 +26,7 @@ const FormSchema = z.object({
   }),
 })
 
-export function InputForm({ onNameSubmit }: { onNameSubmit: (name: string) => void }) {
+export function InputForm({ onNameSubmit, setHeaderText }: { onNameSubmit: (name: string) => void, setHeaderText: (text: string) => void }) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -34,8 +35,8 @@ export function InputForm({ onNameSubmit }: { onNameSubmit: (name: string) => vo
   })
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log("Form Submitted!", data)
-    onNameSubmit(data.username)
+    onNameSubmit(data.username);
+    setHeaderText(`Welcome, ${data.username}!`);  // This line updates the global header text
     toast({
       title: "You submitted the following values:",
       description: (
@@ -68,17 +69,22 @@ export function InputForm({ onNameSubmit }: { onNameSubmit: (name: string) => vo
         <Button type="submit">Submit</Button>
       </form>
     </Form>
-  )
+  );
 }
 
 export default function Page() {
-  const [submittedName, setSubmittedName] = useState<string | null>(null)
+  const { setHeaderText } = useHeader();
+  const [submittedName, setSubmittedName] = useState<string | null>(null);
+
+  useEffect(() => {
+    setHeaderText('Login');
+  }, [setHeaderText]);
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <div className="row-span-2 flex flex-col justify-center h-full">
         <h1 className="text-2xl font-bold mb-4">Login</h1>
-        <InputForm onNameSubmit={setSubmittedName} />
+        <InputForm onNameSubmit={setSubmittedName} setHeaderText={setHeaderText} />
         {submittedName && (
           <div className="mt-4 p-4 bg-blue-100 rounded-md">
             <h2 className="text-xl font-semibold">Submitted Name:</h2>
@@ -87,5 +93,5 @@ export default function Page() {
         )}
       </div>
     </div>
-  )
+  );
 }
