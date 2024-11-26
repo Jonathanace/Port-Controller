@@ -1,5 +1,6 @@
 import pickle
 import string
+import os
 
 # take the type of operation, 
 # operation steps (balancing, loading/unloading), 
@@ -27,4 +28,16 @@ def get_state():
         print("Error: state.pkl not found")
     except pickle.UnpicklingError:
         print("Error: state.pkl could not be unpickled")
+
+# deletes state file if it exists
+# should be used after an operation is complete
+def delete_state():
+    if os.path.isfile('state.pkl'):
+        try:
+            os.remove('state.pkl')
+        except OSError as e:
+            print("Error deleting state file")
+            raise
+
+
         
