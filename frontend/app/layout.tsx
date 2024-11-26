@@ -34,7 +34,6 @@ export default function RootLayout({
           <Header/ >
           {children}
         </HeaderProvider>
-        
       </body>
     </html>
   );
