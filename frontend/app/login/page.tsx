@@ -4,6 +4,8 @@ import React, { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import Link from 'next/link'
+
 
 import { toast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
@@ -65,7 +67,9 @@ export function InputForm({ onNameSubmit }: { onNameSubmit: (name: string) => vo
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button asChild type="submit">
+          <Link href="/func-select">Submit</Link>
+        </Button>
       </form>
     </Form>
   )
