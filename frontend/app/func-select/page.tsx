@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { HeaderProvider } from "@/context/HeaderContext";
 import Header from "@/components/ui/Header"
+import { Button } from "@/components/ui/button"
 
 export function ManifestUpload() {
   return (
@@ -17,7 +18,7 @@ export function ManifestUpload() {
 
 export function FuncSelect() {
   return (
-    <RadioGroup defaultValue="comfortable">
+    <RadioGroup>
       <div className="flex items-center space-x-2">
         <RadioGroupItem value="default" id="r1" />
         <Label htmlFor="r1">Balance Operation</Label>
@@ -30,13 +31,10 @@ export function FuncSelect() {
   )
 }
 
-
-
 export default function Page() {
     return (
         <> 
         <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-            <div></div>
             <Tabs defaultValue="select operation" className="w-[400px]">
               <TabsList>
                 <TabsTrigger value="select operation">Select Operation</TabsTrigger>
@@ -51,6 +49,7 @@ export default function Page() {
                 <ManifestUpload />
               </TabsContent>
             </Tabs>
+            <Button variant="outline">Continue</Button>
         </div>
         </>
     )
