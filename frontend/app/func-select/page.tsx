@@ -1,3 +1,5 @@
+"use client"
+
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -7,19 +9,31 @@ import { HeaderProvider } from "@/context/HeaderContext";
 import Header from "@/components/ui/Header"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
+import React, { useState } from 'react';
 
-export function ManifestUpload() {
+interface ManifestUploadProps {
+  onUpload: () => void;
+}
+
+export function ManifestUpload({ onUpload } : ManifestUploadProps) {
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onUpload();
+  };
+
   return (
     <div className="grid w-full max-w-sm items-center gap-1.5">
-      {/* <Label htmlFor="Manifest">Upload Manifest</Label> */}
-      <Input id="manifest" type="file" />
+      <Input id="manifest" type="file" onChange={handleUpload}/>
     </div>
   )
 }
 
-export function FuncSelect() {
+interface FuncSelectProps {
+  onSelect: () => void;
+}
+
+export function FuncSelect({ onSelect } : FuncSelectProps) {
   return (
-    <RadioGroup>
+    <RadioGroup onValueChange={onSelect}>
       <div className="flex items-center space-x-2">
         <RadioGroupItem value="default" id="r1" />
         <Label htmlFor="r1">Balance Operation</Label>
@@ -33,13 +47,18 @@ export function FuncSelect() {
 }
 
 export default function Page() {
+  const [funcSelected, setFuncSelected] = useState(false);
+  const [manifestUploaded, setManifestUploaded] = useState(false);
+
+  const progress = (funcSelected ? 50 : 0) + (manifestUploaded ? 50 : 0)
+
   return (
     <> 
       <div className="grid grid-rows-[auto, 1fr, auto] justify-items-center min-h-screen p-10 pb-20 gap-4 sm:p-10 font-[family-name:var(--font-geist-sans)]">
         <span className="w-[400px]">
           <div className="mb-5">
             Progress
-            <Progress value={50} />
+            <Progress value={progress} />
           </div>
           
           <Tabs defaultValue="select operation" className="w-[400px]">
@@ -50,12 +69,12 @@ export default function Page() {
             <TabsContent value="select operation">
               Select your desired operation.
               <div className="mb-10">
-                <FuncSelect />
+                <FuncSelect onSelect={() => setFuncSelected(true)}/>
               </div>
             </TabsContent>
             <TabsContent value="upload manifest">
               Upload your manifest here.
-              <ManifestUpload />
+              <ManifestUpload onUpload={() => setManifestUploaded(true)}/>
             </TabsContent>
           </Tabs>
           <div className="flex justify-center"> 
