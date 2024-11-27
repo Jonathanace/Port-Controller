@@ -165,7 +165,7 @@ print(child_node_cases[0].previous_node.ship[7,4].name)
 # print(Case2.check_aviable_load())
 def load_item(item,curr_node):
     available_indexes = curr_node.check_aviable_load()
-    weight = int(input("Weight of item:"))
+    weight = 851
     child_nodes= []
     for index in available_indexes:
          temp_ship = copy.deepcopy(curr_node.ship)
@@ -291,8 +291,22 @@ def get_all_the_nodes(goal_node):
     return nodes
 nodes = get_all_the_nodes(final_node)
 print(len(nodes))
+
+def get_position_moved(ship1, ship2):
+    for i in range(len(ship1)):
+        for j in range(len(ship1[0])):
+            if ship1[i][j].name != ship2[i][j].name:
+                return (i, j)
+
 def get_steps(nodes):
     steps = []
     for i in range(0, len(nodes)-1):
-        if nodes[i].crane_pos == "Start" and nodes[i+1].crane_pos == "Dock":
-            step = Step([1,4], )
+        if nodes[i+1].crane_pos == "Dock":
+            start_pos = get_position_moved(nodes[i].ship,nodes[i+1].ship)
+            step = Step(start_pos, "Dock", 10, "Unloading" )
+            steps.append(step)
+        if nodes[i].crane_pos == "Dock" and nodes[i+1].crane_pos == "Ship":
+            end_pos = get_position_moved(nodes[i].ship,nodes[i+1].ship)
+            step = Step("Dock", end_pos, 10, "Loading")
+    return steps
+
