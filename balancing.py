@@ -9,6 +9,14 @@ import numpy as np
 import copy
 import sys
 
+'''
+IMPORTANT: If there are two Nodes who have the same heuristic value, pick the Node that moves the container further away from the center
+Heuristic Ideas: Difference btwn ideal difference btwn side weights and current difference btwn side weights 
+                Total time taken to make the move multiplied by the weight of the container being moved
+                Weight of heavier side divided by number of columns with containers in them.
+'''
+
+
 
 #Checks if a ship can be balanced by looking through each combination of containers and seeing if any pair of sums is within 10% of each other.
 def can_balance(items: list["Item"]) -> bool:
@@ -46,7 +54,6 @@ def container_combinations(arr, data, start, end, index, r, total, sums):
 def balance(items: list["Item"]):
     needs_sift = False
     if can_balance(items) == False:
-        print("Can\'t be balanced")
         needs_sift = True
     res = to_grid(items)
     start = Node(res)
@@ -193,6 +200,7 @@ def time_estimate(curr: Node, prev: Node):
 
 
 #Takes the output from the main balancing function and translates it into an array of step objects. Outputs the array. Intended to be used by front end, and will be the function that is called when the user selects the balancing option.
+#TO DO: add container weight to each step object
 def get_balancing_steps(items: list["Item"]):
     res = []
     curr, is_sifted = balance(items)
@@ -223,18 +231,21 @@ def get_balancing_steps(items: list["Item"]):
     res.reverse()
     return res
     
-
-# with open(f"ShipCase5.txt") as f:
-#     import time
-#     start_time = time.time()
-#     res = parse_manifest(f.read())
-#     arr = get_balancing_steps(res)
-#     end_time = time.time()
-#     for square in arr:
-#         print("Operation type is \'", square.movement_type, end=" \'; ")
-#         print("Start position:", square.start_pos, end=", ")
-#         print("End position:", square.end_pos, end=", ")
-#         print("Time estimated:", square.time_estimate, end=" ")
-#         print("minutes")
-#     time_spent = end_time - start_time
-#     print(time_spent, "seconds spent")
+# files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
+# for file in files:
+#     print("CURRENTLY PROCESSING:", file)
+#     with open(file) as f:
+#         import time
+#         start_time = time.time()
+#         res = parse_manifest(f.read())
+#         arr = get_balancing_steps(res)
+#         for square in arr:
+#             print("Operation type is \'", square.movement_type, end=" \'; ")
+#             print("Start position:", square.start_pos, end=", ")
+#             print("End position:", square.end_pos, end=", ")
+#             print("Time estimated:", square.time_estimate, end=" ")
+#             print("minutes")
+#         end_time = time.time()
+#         time_spent = end_time - start_time
+#         print(time_spent, "seconds spent")
+#         print('\n')
