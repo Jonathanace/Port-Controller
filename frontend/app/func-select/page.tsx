@@ -10,6 +10,13 @@ import Header from "@/components/ui/Header"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import React, { useState } from 'react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 
 interface ManifestUploadProps {
   onUpload: () => void;
@@ -60,27 +67,39 @@ export default function Page() {
             Progress
             <Progress value={progress} />
           </div>
-          <Tabs defaultValue="select operation" className="w-[400px]">
-            <TabsList>
-              <TabsTrigger value="select operation">Select Operation</TabsTrigger>
-              <TabsTrigger value="upload manifest">Upload Manifest</TabsTrigger>
-            </TabsList>
-            <TabsContent value="select operation">
-              Select your desired operation.
-              <div className="mb-10">
-                <FuncSelect onSelect={() => setFuncSelected(true)}/>
-              </div>
-            </TabsContent>
-            <TabsContent value="upload manifest">
-              Upload your manifest here.
-              <ManifestUpload onUpload={() => setManifestUploaded(true)}/>
-            </TabsContent>
-          </Tabs>
+          <div className="mb-20">
+            <Tabs defaultValue="select operation" className="w-[400px]">
+              <TabsList>
+                <TabsTrigger value="select operation">Select Operation</TabsTrigger>
+                <TabsTrigger value="upload manifest">Upload Manifest</TabsTrigger>
+              </TabsList>
+              <TabsContent value="select operation">
+                Select your desired operation.
+                <div>
+                  <FuncSelect onSelect={() => setFuncSelected(true)}/>
+                </div>
+              </TabsContent>
+              <TabsContent value="upload manifest">
+                Upload your manifest here.
+                <ManifestUpload onUpload={() => setManifestUploaded(true)}/>
+              </TabsContent>
+            </Tabs>
+          </div>
+
           <div className="flex justify-center"> 
             {progress == 100 ? (
               <Button variant="outline">Continue</Button>
             ) : (
-              <Button disabled variant="outline">Continue</Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button disabled variant="outline">Continue</Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Select an operation and upload a manifest to continue.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
             
           </div>
