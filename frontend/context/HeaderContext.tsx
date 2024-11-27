@@ -16,7 +16,7 @@ export const useHeader = () => {
 }
 
 export const HeaderProvider = ({ children }: { children: ReactNode }) => {
-  const [headerText, setHeaderText] = useState('default header text (not placeholder!)');
+  const [headerText, setHeaderText] = useState('DEFAULT HEADER TEXT');
 
   return (
     <HeaderContext.Provider value={{ headerText, setHeaderText }}>
