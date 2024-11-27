@@ -80,7 +80,7 @@ export default function Page() {
   const [submittedName, setSubmittedName] = useState<string | null>(null);
 
   useEffect(() => {
-    setHeaderText('Login');
+    setHeaderText('Welcome!');
   }, [setHeaderText]);
 
   return (
