@@ -297,7 +297,8 @@ def get_position_moved(ship1, ship2):
         for j in range(len(ship1[0])):
             if ship1[i][j].name != ship2[i][j].name:
                 return (i, j)
-
+def items_swapped(ship1, ship2):
+    return
 def get_steps(nodes):
     steps = []
     for i in range(0, len(nodes)-1):
@@ -309,4 +310,9 @@ def get_steps(nodes):
             end_pos = get_position_moved(nodes[i].ship,nodes[i+1].ship)
             step = Step("Dock", end_pos, 10, "Loading")
     return steps
-
+steps = get_steps(nodes)
+print(len(steps))
+def output_step(steps):
+    for step in steps:
+        print(f"Start position: {step.start_pos} , end position: {step.end_pos} , time: {step.time_estimate} minutes, moevement : {step.movement_type}")
+output_step(steps)
