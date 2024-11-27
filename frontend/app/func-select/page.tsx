@@ -60,7 +60,6 @@ export default function Page() {
             Progress
             <Progress value={progress} />
           </div>
-          
           <Tabs defaultValue="select operation" className="w-[400px]">
             <TabsList>
               <TabsTrigger value="select operation">Select Operation</TabsTrigger>
@@ -78,7 +77,12 @@ export default function Page() {
             </TabsContent>
           </Tabs>
           <div className="flex justify-center"> 
-            <Button variant="outline">Continue</Button>
+            {progress == 100 ? (
+              <Button variant="outline">Continue</Button>
+            ) : (
+              <Button disabled variant="outline">Continue</Button>
+            )}
+            
           </div>
         </span>
       </div>
