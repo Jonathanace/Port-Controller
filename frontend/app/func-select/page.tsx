@@ -16,7 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-
+import Link from 'next/link'
 
 interface ManifestUploadProps {
   onUpload: () => void;
@@ -64,7 +64,7 @@ export default function Page() {
       <div className="grid grid-rows-[auto, 1fr, auto] justify-items-center min-h-screen p-10 pb-20 gap-4 sm:p-10 font-[family-name:var(--font-geist-sans)]">
         <span className="w-[400px]">
           <div className="mb-5">
-            Progress
+            Progress ({progress / 50}/2)
             <Progress value={progress} />
           </div>
           <div className="mb-20">
@@ -88,12 +88,14 @@ export default function Page() {
 
           <div className="flex justify-center"> 
             {progress == 100 ? (
-              <Button variant="outline">Continue</Button>
+              <Button asChild>
+                <Link href="/plan">Continue</Link>
+              </Button>
             ) : (
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger>
-                    <Button disabled variant="outline">Continue</Button>
+                  <TooltipTrigger asChild>
+                    <Button disabled >Continue</Button>
                   </TooltipTrigger>
                   <TooltipContent>
                     Select an operation and upload a manifest to continue.
