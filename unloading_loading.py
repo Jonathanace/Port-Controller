@@ -34,20 +34,7 @@ unload = [("Cat", 1)]
 # cargo = (unload[0], unload[1] -1)
 # print(unload)
 # print(cargo)
-def calculate_goal_state(unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None) -> list[tuple[str,int]]:
-    goal_state = []
-    #change 1 to int, change cargo to item
-    if unload is not None:
-        for cargo in unload:
-            final_cargo = (cargo[0], cargo[1] - 1)
-            goal_state.append(final_cargo)
-    if load is not None:
-        for cargo in load:
-            final_cargo = (cargo[0], cargo[1] - 1)
-            goal_state.append(final_cargo)
 
-    return goal_state
-#print(calculate_goal_state(unload, None))
 def find_item_amount(item : str, ship):
     count = 0 
     for i in range(len(ship)):
@@ -55,6 +42,22 @@ def find_item_amount(item : str, ship):
             if ship[i][j].name == item:
                 count += 1
     return count
+
+def calculate_goal_state(ship, unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None) -> list[tuple[str,int]]:
+    goal_state = []
+    #change 1 to int, change cargo to item
+    if unload is not None:
+        for item in unload:
+            final_cargo = (item[0], find_item_amount(item[0], ship) -item[1])
+            goal_state.append(final_cargo)
+    if load is not None:
+        for item in load:
+            final_cargo = (item[0],  find_item_amount(item,ship) - item[1]  )
+            goal_state.append(final_cargo)
+
+    return goal_state
+print(calculate_goal_state(Case1.ship,unload))
+
 # print(find_item_amount("Cat", Case1.ship))
 
 # gets the initial state of the ship 
@@ -126,6 +129,7 @@ def remove_items_above(tallest_index, target_index, curr_node):
         curr_index = frontier_indexes[0]
 
 # test_node = remove_items_above([7,4], [6,4], Case4)
+# print("remove item above")
 # print(test_node.ship[7,4].name)
 # print(test_node.ship[6,4].name)
 
@@ -141,8 +145,15 @@ def unload_item(item,curr_node):
             child_nodes.append(child_node)
         else:
             tallest_index = find_tallest_index(index, curr_node.ship)
-            child_node = remove_items_above(tallest_index, index, curr_node)
+            no_item_above_node = remove_items_above(tallest_index, index, curr_node)
+            temp_ship = copy.deepcopy(no_item_above_node.ship)
+            temp_ship[index[0],index[1]].set_empty()
+            child_node = Node(temp_ship, previous_node=no_item_above_node, crane_pos = "Dock")
+            child_nodes.append(child_node)
     return child_nodes
+child_node_cases = unload_item("Doe", Case4)
+print(len(child_node_cases))
+print(child_node_cases[0].previous_node.ship[7,4].name)
 # child_node_case1 = unload_item("Cat", Case1)
 # print(child_node_case1[0].ship[0,1].name)
 # print(len(Case1.ship))
@@ -214,7 +225,7 @@ def check_two_ships(ship1, ship2):
     return True
 # print(check_two_ships(child_node_case1[0].ship,Case1.ship))
 def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None):
-    goal_state = calculate_goal_state(unload, load)
+    goal_state = calculate_goal_state(initial_node.ship, unload, load)
     items_moved = []
     unload_items = []
     load_items = []
@@ -262,8 +273,26 @@ def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[t
                 if check_two_ships(explored_node.ship,temp_node.ship) == False:
                     frontier_node.append(temp_node)
         frontier_node.pop(0)
-        curr_node = frontier[0]
+        curr_node = frontier_node[0]
 final_node = unload_load(Case1,unload)
-print(Case1.ship[0,1].name)
-print(final_node.ship[0,1].name)
-print(final_node.previous_node.ship[0,1].name)
+# print(Case1.ship[0,1].name)
+# print(final_node.ship[0,1].name)
+# print(final_node.previous_node.ship[0,1].name)
+
+
+
+def get_all_the_nodes(goal_node):
+    curr_node = goal_node
+    nodes = []
+    while curr_node != None:
+        nodes.append(curr_node)
+        curr_node = curr_node.previous_node
+    nodes.reverse()
+    return nodes
+nodes = get_all_the_nodes(final_node)
+print(len(nodes))
+def get_steps(nodes):
+    steps = []
+    for i in range(0, len(nodes)-1):
+        if nodes[i].crane_pos == "Start" and nodes[i+1].crane_pos == "Dock":
+            step = Step([1,4], )
