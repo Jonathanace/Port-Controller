@@ -36,6 +36,7 @@ unload = [("Cat", 1)]
 # print(cargo)
 def calculate_goal_state(unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None) -> list[tuple[str,int]]:
     goal_state = []
+    #change 1 to int, change cargo to item
     if unload is not None:
         for cargo in unload:
             final_cargo = (cargo[0], cargo[1] - 1)
@@ -76,17 +77,59 @@ def get_item_index(item,ship):
                     index_list.append([i,j])
     return index_list
 # print(get_item_index("Cat", Case1.ship))
-print(get_item_index("Doe", Case4.ship))
-print(Case4.ship[7,4].name)
-print(Case4.ship[6,4].name)
-def find_items_above(index,ship):
-    items_above = []
+# print(get_item_index("Doe", Case4.ship))
+# print(Case4.ship[7,4].name)
+# print(Case4.ship[6,4].name)
+def find_tallest_index(index,ship):
+    tallest_index = [0,0]
     for i in range(len(ship)-1, index[0], -1):
         if ship[i][index[1]].is_empty == False:
-            items_above.append([i,index[1]])     
-    return items_above
-print(find_items_above([6,4],Case4.ship))
+            tallest_index = [i,index[1]]     
+    return tallest_index
+# print(find_tallest_index([6,4],Case4.ship))
+# print(Case4.ship[6,4].weight)
 # returns a list of child nodes
+# index1 = [7,4]
+# index2 = (1,3)
+# swapEx = Case4.ship
+
+def swap_items(index1, index2, ship):
+    temp = ship[index1[0],index1[1]]
+    ship[index2[0],index2[1]].set_container(temp.weight,temp.name)
+    ship[index1[0],index1[1]].set_empty()
+    return ship
+# swapEx = swap_items(index1,index2,swapEx)
+# print(swapEx[1,3].name)
+# print(swapEx[7,4].name)
+
+
+def remove_items_above(tallest_index, target_index, curr_node):
+    curr_index = tallest_index
+    frontier_node = [curr_node]
+    frontier_indexes= [curr_index]
+    goal_reached = False
+    while goal_reached == False: 
+        if curr_index[0] ==  target_index[0]:
+            goal_reached == True
+            return curr_node
+        available_indexes = curr_node.check_aviable_load()
+        for index in available_indexes:
+            temp_ship = copy.deepcopy(curr_node.ship)
+            temp_ship = swap_items(curr_index,index,temp_ship)
+            child_node = Node(temp_ship, previous_node=curr_node, crane_pos= "Ship")
+            frontier_node.append(child_node)
+            child_index = [curr_index[0]-1, curr_index[1]]
+            frontier_indexes.append(child_index)
+        frontier_node.pop(0)
+        frontier_indexes.pop(0)
+        curr_node = frontier_node[0]
+        curr_index = frontier_indexes[0]
+
+# test_node = remove_items_above([7,4], [6,4], Case4)
+# print(test_node.ship[7,4].name)
+# print(test_node.ship[6,4].name)
+
+
 def unload_item(item,curr_node):
     child_nodes = []
     index_list = get_item_index(item, curr_node.ship)
@@ -97,7 +140,8 @@ def unload_item(item,curr_node):
             child_node = Node(temp_ship, previous_node=curr_node, crane_pos = "Dock")
             child_nodes.append(child_node)
         else:
-            child_nodes.append(1)
+            tallest_index = find_tallest_index(index, curr_node.ship)
+            child_node = remove_items_above(tallest_index, index, curr_node)
     return child_nodes
 # child_node_case1 = unload_item("Cat", Case1)
 # print(child_node_case1[0].ship[0,1].name)
@@ -183,7 +227,8 @@ def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[t
             items_moved.append(item[0])
             load_items.append(item[0])     
     goal_reached = False
-    frontier = [initial_node]
+    frontier_node = [initial_node]
+    frontier_move = []
     explored = []
     curr_node = initial_node
     curr_unload = unload
@@ -215,8 +260,8 @@ def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[t
         for explored_node in explored:
             for temp_node in temp_frontier:
                 if check_two_ships(explored_node.ship,temp_node.ship) == False:
-                    frontier.append(temp_node)
-        frontier.pop(0)
+                    frontier_node.append(temp_node)
+        frontier_node.pop(0)
         curr_node = frontier[0]
 final_node = unload_load(Case1,unload)
 print(Case1.ship[0,1].name)
