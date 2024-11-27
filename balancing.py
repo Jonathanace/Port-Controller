@@ -4,13 +4,16 @@ from states import Grid
 from states import to_grid
 from nodes import Node
 from step import Step
+from sift import *
 import numpy as np
 import copy
 import sys
 
 '''
-    TO DO:
-        Edit check_movable so that instead of iterating from column 1 to column 12, it iterates from column 6 to column 1 and column 7 to column 12. Use two pointers in one loop.
+IMPORTANT: If there are two Nodes who have the same heuristic value, pick the Node that moves the container further away from the center
+Heuristic Ideas: Difference btwn ideal difference btwn side weights and current difference btwn side weights 
+                Total time taken to make the move multiplied by the weight of the container being moved
+                Weight of heavier side divided by number of columns with containers in them.
 '''
 
 
@@ -49,11 +52,12 @@ def container_combinations(arr, data, start, end, index, r, total, sums):
     
 #Main balancing function. Outputs the final goal state.
 def balance(items: list["Item"]):
+    needs_sift = False
+    if can_balance(items) == False:
+        needs_sift = True
     res = to_grid(items)
     start = Node(res)
-    if can_balance(items) == False:
-        print("Can\'t be balanced")
-        return start
+    left, right = sifted_weights(start)
     frontier = [start]
     explored = []
     goal_reached = False
@@ -64,9 +68,14 @@ def balance(items: list["Item"]):
             for q in range(len(state.ship)):
                 for w in range(len(state.ship[q])):
                     curr_weight_arr.append(state.ship[q][w].weight)
-            if is_balanced(state) == True:
-                goal_reached = True
-                return state
+            if needs_sift == True:
+                if check_sifted(state, left, right) == True:
+                    goal_reached = True
+                    return state, needs_sift
+            else:
+                if is_balanced(state) == True:
+                    goal_reached = True
+                    return state, needs_sift
             movable = movable_centered(state)
             for container in movable:
                 x = container[0]
@@ -91,7 +100,7 @@ def balance(items: list["Item"]):
         frontier = []
         for new_state in temp_frontier:
             frontier.append(new_state)
-    return start
+    return start, needs_sift
 
 #Creates a list of containers that can be moved starting from the center of the ship. Returns an array of tuples.
 def movable_centered(ship: Node):
@@ -191,9 +200,15 @@ def time_estimate(curr: Node, prev: Node):
 
 
 #Takes the output from the main balancing function and translates it into an array of step objects. Outputs the array. Intended to be used by front end, and will be the function that is called when the user selects the balancing option.
+#TO DO: add container weight to each step object
 def get_balancing_steps(items: list["Item"]):
     res = []
-    curr = balance(items)
+    curr, is_sifted = balance(items)
+    movement_type = "Balance"
+    if is_sifted == True:
+        movement_type = "SIFT"
+    else:
+        movement_type = "Balance"
     while(curr != None):
         prev = curr.previous_node
         if(prev == None):
@@ -210,24 +225,27 @@ def get_balancing_steps(items: list["Item"]):
         else:
             start_pos = positions[1]
             end_pos = positions[0]
-        temp = Step(start_pos, end_pos, time_estimation, "Balance")
+        temp = Step(start_pos, end_pos, time_estimation, movement_type)
         res.append(temp)
         curr = prev
     res.reverse()
     return res
     
-
-# with open(f"ShipCase1.txt") as f:
-#     import time
-#     start_time = time.time()
-#     res = parse_manifest(f.read())
-#     arr = get_balancing_steps(res)
-#     end_time = time.time()
-#     for square in arr:
-#         print("Operation type is \'", square.movement_type, end=" \'; ")
-#         print("Start position:", square.start_pos, end=", ")
-#         print("End position:", square.end_pos, end=", ")
-#         print("Time estimated:", square.time_estimate, end=" ")
-#         print("minutes")
-#     time_spent = end_time - start_time
-#     print(time_spent, "seconds spent")
+# files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
+# for file in files:
+#     print("CURRENTLY PROCESSING:", file)
+#     with open(file) as f:
+#         import time
+#         start_time = time.time()
+#         res = parse_manifest(f.read())
+#         arr = get_balancing_steps(res)
+#         for square in arr:
+#             print("Operation type is \'", square.movement_type, end=" \'; ")
+#             print("Start position:", square.start_pos, end=", ")
+#             print("End position:", square.end_pos, end=", ")
+#             print("Time estimated:", square.time_estimate, end=" ")
+#             print("minutes")
+#         end_time = time.time()
+#         time_spent = end_time - start_time
+#         print(time_spent, "seconds spent")
+#         print('\n')
