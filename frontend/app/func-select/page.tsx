@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { HeaderProvider } from "@/context/HeaderContext";
 import Header from "@/components/ui/Header"
 import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
 
 export function ManifestUpload() {
   return (
@@ -32,25 +33,36 @@ export function FuncSelect() {
 }
 
 export default function Page() {
-    return (
-        <> 
-        <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-            <Tabs defaultValue="select operation" className="w-[400px]">
-              <TabsList>
-                <TabsTrigger value="select operation">Select Operation</TabsTrigger>
-                <TabsTrigger value="upload manifest">Upload Manifest</TabsTrigger>
-              </TabsList>
-              <TabsContent value="select operation">
-                Select your desired operation.
+  return (
+    <> 
+      <div className="grid grid-rows-[auto, 1fr, auto] justify-items-center min-h-screen p-10 pb-20 gap-4 sm:p-10 font-[family-name:var(--font-geist-sans)]">
+        <span className="w-[400px]">
+          <div className="mb-5">
+            Progress
+            <Progress value={50} />
+          </div>
+          
+          <Tabs defaultValue="select operation" className="w-[400px]">
+            <TabsList>
+              <TabsTrigger value="select operation">Select Operation</TabsTrigger>
+              <TabsTrigger value="upload manifest">Upload Manifest</TabsTrigger>
+            </TabsList>
+            <TabsContent value="select operation">
+              Select your desired operation.
+              <div className="mb-10">
                 <FuncSelect />
-              </TabsContent>
-              <TabsContent value="upload manifest">
-                Upload your manifest here.
-                <ManifestUpload />
-              </TabsContent>
-            </Tabs>
+              </div>
+            </TabsContent>
+            <TabsContent value="upload manifest">
+              Upload your manifest here.
+              <ManifestUpload />
+            </TabsContent>
+          </Tabs>
+          <div className="flex justify-center"> 
             <Button variant="outline">Continue</Button>
-        </div>
-        </>
-    )
-  }
+          </div>
+        </span>
+      </div>
+    </>
+  );
+}
