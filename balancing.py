@@ -14,9 +14,23 @@ IMPORTANT: If there are two Nodes who have the same heuristic value, pick the No
 Heuristic Ideas: Difference btwn ideal difference btwn side weights and current difference btwn side weights 
                 Total time taken to make the move multiplied by the weight of the container being moved
                 Weight of heavier side divided by number of columns with containers in them.
+                Still unsure of wanting to keep the center empty or making it priority to be placed in.
+                Teammate mentioned using heuristic something like multiplying weight by distance from center
+                Distance from center: min(abs(6 - col), (7 - col))
+                Containers on left side will be distance from 6, containers on right side will be distance from 7.
 '''
 
+'''
+Editing balance function: need to keep track of ideal weight difference, can be done by editing can_balance to also return the difference
+Need to know how long each move takes while balance function is running, can't calculate time afterwards. Need to call calculate time during balance function.
+Can also edit Node class to keep track of time spent, but not 1000% necessary.
+Might need to write a new function to find every column that has at least one container in it.
+For now, since finding spots a container moves to starts from the middle, just doing something like if curr <= min set min to curr should keep the center clear.
+'''
 
+'''
+Edit Node class, give it a Step object attribute and a create step function that calculates time and checks the two positions. Put it in constructer and run if previous node != None.
+'''
 
 #Checks if a ship can be balanced by looking through each combination of containers and seeing if any pair of sums is within 10% of each other.
 def can_balance(items: list["Item"]) -> bool:
@@ -33,8 +47,8 @@ def can_balance(items: list["Item"]) -> bool:
         container_combinations(arr, data, 0, len(arr) - 1, 0, r, total_weight, sums)
     for sum in sums:
         if 0.9 * sum < total_weight - sum < 1.1 * sum:
-            return True
-    return False
+            return True #, total_weight - sum
+    return False #, total_weight - sum
 
 #Recursive function that checks every possible combination of container weights.
 def container_combinations(arr, data, start, end, index, r, total, sums):
@@ -247,5 +261,5 @@ def get_balancing_steps(items: list["Item"]):
 #             print("minutes")
 #         end_time = time.time()
 #         time_spent = end_time - start_time
-#         print(time_spent, "seconds spent")
+#         print(time_spent / 60, "minutes spent finding optimal solution")
 #         print('\n')
