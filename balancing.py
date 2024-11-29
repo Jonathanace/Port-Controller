@@ -46,7 +46,7 @@ def can_balance(items: list["Item"]) -> bool:
         data = [0]*r
         container_combinations(arr, data, 0, len(arr) - 1, 0, r, total_weight, sums)
     for sum in sums:
-        if 0.9 * sum < total_weight - sum < 1.1 * sum:
+        if (10/11) * sum < total_weight - sum < 1.1 * sum:
             return True #, total_weight - sum
     return False #, total_weight - sum
 
