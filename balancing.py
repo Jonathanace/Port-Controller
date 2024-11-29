@@ -158,9 +158,10 @@ def is_balanced(ship: Node):
             temp_right = curr[n][j]
             left += temp_left.weight
             right += temp_right.weight
-    diff = min(left, right) / max(left, right)
-    if diff > 0.9:
-        return True
+    if min(left, right) != 0:
+        diff = max(left, right) / min(left, right)
+        if diff < 1.1:
+            return True
     return False
 
 #Changes position and information of two squares on the ship. Outputs an array that has those changes.
@@ -239,7 +240,11 @@ def get_balancing_steps(items: list["Item"]):
         else:
             start_pos = positions[1]
             end_pos = positions[0]
-        temp = Step(start_pos, end_pos, time_estimation, movement_type)
+        s1 = end_pos[0] - 1
+        s2 = end_pos[1] - 1
+        temp_grid = curr.ship[s1][s2]
+        weight = temp_grid.weight
+        temp = Step(start_pos, end_pos, time_estimation, movement_type, weight)
         res.append(temp)
         curr = prev
     res.reverse()
@@ -255,6 +260,7 @@ def get_balancing_steps(items: list["Item"]):
 #         arr = get_balancing_steps(res)
 #         for square in arr:
 #             print("Operation type is \'", square.movement_type, end=" \'; ")
+#             print("Weight of Container:", square.weight, end=", ")
 #             print("Start position:", square.start_pos, end=", ")
 #             print("End position:", square.end_pos, end=", ")
 #             print("Time estimated:", square.time_estimate, end=" ")
