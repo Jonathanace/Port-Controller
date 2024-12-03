@@ -53,10 +53,12 @@ def container_combinations(arr, data, start, end, index, r, total, sums):
 #Main balancing function. Outputs the final goal state.
 def balance(items: list["Item"]):
     needs_sift = False
+    movement_type = "Balance"
     if can_balance(items) == False:
         needs_sift = True
+        movement_type = "SIFT"
     res = to_grid(items)
-    start = Node(res)
+    start = Node(res, movement_type)
     left, right = sifted_weights(start)
     frontier = [start]
     explored = []
@@ -84,7 +86,7 @@ def balance(items: list["Item"]):
                 available = state.check_available(temp)
                 for a in available:
                     new_ship = swap_squares(state, temp, a)
-                    child_node = Node(new_ship, previous_node=state)
+                    child_node = Node(new_ship, movement_type, previous_node=state)
                     exists = False
                     weight_arr = []
                     for q in range(len(child_node.ship)):
@@ -231,21 +233,36 @@ def get_balancing_steps(items: list["Item"]):
     res.reverse()
     return res
     
-# files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
-# for file in files:
-#     print("CURRENTLY PROCESSING:", file)
-#     with open(file) as f:
-#         import time
-#         start_time = time.time()
-#         res = parse_manifest(f.read())
-#         arr = get_balancing_steps(res)
-#         for square in arr:
-#             print("Operation type is \'", square.movement_type, end=" \'; ")
-#             print("Start position:", square.start_pos, end=", ")
-#             print("End position:", square.end_pos, end=", ")
-#             print("Time estimated:", square.time_estimate, end=" ")
-#             print("minutes")
-#         end_time = time.time()
-#         time_spent = end_time - start_time
-#         print(time_spent, "seconds spent")
-#         print('\n')
+def get_steps(manifest: str):
+    res = []
+    items = parse_manifest(manifest)
+    curr, is_sifted = balance(items)
+    while(curr != None):
+        prev = curr.previous_node
+        if(prev == None):
+            break
+        # print(curr.get_h())
+        # print(abs(curr.get_h() - prev.get_h()))
+        res.append(curr.get_step())
+        curr = prev
+    res.reverse()
+    return res    
+    
+files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
+for file in files:
+    print("CURRENTLY PROCESSING:", file)
+    with open(file) as f:
+        import time
+        start_time = time.time()
+        arr = get_steps(f.read())
+        for square in arr:
+            print("Operation type is \'", square.movement_type, end=" \'; ")
+            print("Weight of Container:", square.weight, end=", ")
+            print("Start position:", square.start_pos, end=", ")
+            print("End position:", square.end_pos, end=", ")
+            print("Time estimated:", square.time_estimate, end=" ")
+            print("minutes")
+        end_time = time.time()
+        time_spent = end_time - start_time
+        print(time_spent, "seconds spent")
+        print('\n')
