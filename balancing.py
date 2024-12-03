@@ -67,10 +67,12 @@ def container_combinations(arr, data, start, end, index, r, total, sums):
 #Main balancing function. Outputs the final goal state.
 def balance(items: list["Item"]):
     needs_sift = False
+    movement_type = "Balance"
     if can_balance(items) == False:
         needs_sift = True
+        movement_type = "SIFT"
     res = to_grid(items)
-    start = Node(res)
+    start = Node(res, movement_type)
     left, right = sifted_weights(start)
     frontier = [start]
     explored = []
@@ -98,7 +100,7 @@ def balance(items: list["Item"]):
                 available = state.check_available(temp)
                 for a in available:
                     new_ship = swap_squares(state, temp, a)
-                    child_node = Node(new_ship, previous_node=state)
+                    child_node = Node(new_ship, movement_type, previous_node=state)
                     exists = False
                     weight_arr = []
                     for q in range(len(child_node.ship)):
@@ -114,6 +116,7 @@ def balance(items: list["Item"]):
         frontier = []
         for new_state in temp_frontier:
             frontier.append(new_state)
+        frontier.sort(key = lambda s : (s.get_h() + s.previous_node.get_h()))
     return start, needs_sift
 
 #Creates a list of containers that can be moved starting from the center of the ship. Returns an array of tuples.
@@ -250,22 +253,87 @@ def get_balancing_steps(items: list["Item"]):
     res.reverse()
     return res
     
-# files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
-# for file in files:
-#     print("CURRENTLY PROCESSING:", file)
-#     with open(file) as f:
-#         import time
-#         start_time = time.time()
-#         res = parse_manifest(f.read())
-#         arr = get_balancing_steps(res)
-#         for square in arr:
-#             print("Operation type is \'", square.movement_type, end=" \'; ")
-#             print("Weight of Container:", square.weight, end=", ")
-#             print("Start position:", square.start_pos, end=", ")
-#             print("End position:", square.end_pos, end=", ")
-#             print("Time estimated:", square.time_estimate, end=" ")
-#             print("minutes")
-#         end_time = time.time()
-#         time_spent = end_time - start_time
-#         print(time_spent / 60, "minutes spent finding optimal solution")
-#         print('\n')
+def get_steps(manifest: str):
+    res = []
+    items = parse_manifest(manifest)
+    curr, is_sifted = balance(items)
+    while(curr != None):
+        prev = curr.previous_node
+        if(prev == None):
+            break
+        # print(curr.get_h())
+        # print(abs(curr.get_h() - prev.get_h()))
+        res.append(curr.get_step())
+        curr = prev
+    res.reverse()
+    return res
+    
+def calculate_h(ship: Node, is_sifted: bool):
+    if ship.previous_node == None:
+        return 0, 0, 0
+    curr = ship.ship
+    prev = ship.previous_node.ship
+    left = 0
+    right = 0
+    bal_diff = 0
+    if(is_sifted == True):
+        l, r = sifted_weights(ship)
+        bal_diff = abs(l - r)
+    for i in range(6):
+        j = i + 6
+        for n in range(len(curr) - 1):
+            temp_left = curr[n][i]
+            temp_right = curr[n][j]
+            left += temp_left.weight
+            right += temp_right.weight
+    h1 = abs(left - right) - bal_diff
+    step = ship.step
+    time = step.time_estimate
+    container_pos = step.start_pos
+    x = container_pos[0] - 1
+    y = container_pos[1] - 1
+    weight_below = 1
+    if(x >= 1):
+        print(container_pos)
+        temp_grid = prev[x - 1][y]
+        print(temp_grid.position)
+        weight_below = max(1, temp_grid.weight)
+    h2 = weight_below * time
+    container_columns = 0
+    if(left > right):
+        for i in range(6):
+            n = 7
+            while n >= 0:
+                if curr[n][i].is_empty == False and curr[n][i].is_hull == False:
+                    container_columns += 1
+                n -= 1
+    else:
+        for i in range(6, 12):
+            n = 7
+            while n >= 0:
+                if curr[n][i].is_empty == False and curr[n][i].is_hull == False:
+                    container_columns += 1
+                n -= 1
+    h3 = max(left, right) / container_columns
+    return h1, h2, h3
+    
+    
+    
+files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
+for file in files:
+    print("CURRENTLY PROCESSING:", file)
+    with open(file) as f:
+        import time
+        start_time = time.time()
+        arr = get_steps(f.read())
+        for square in arr:
+            print("Operation type is \'", square.movement_type, end=" \'; ")
+            print("Weight of Container:", square.weight, end=", ")
+            print("Start position:", square.start_pos, end=", ")
+            print("End position:", square.end_pos, end=", ")
+            print("Time estimated:", square.time_estimate, end=" ")
+            print("minutes")
+        end_time = time.time()
+        time_spent = end_time - start_time
+        print(time_spent, "seconds spent finding optimal solution")
+        print('\n')
