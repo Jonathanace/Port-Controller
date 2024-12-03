@@ -1,12 +1,10 @@
 import re
 from typing import TYPE_CHECKING, TypedDict
 
-if TYPE_CHECKING:
-
-    class Item(TypedDict):
-        company: str
-        location: tuple[int, int]
-        weight: int
+class Item(TypedDict):
+    company: str
+    location: tuple[int, int]
+    weight: int
 
 
 def parse_manifest(manifest: str) -> list["Item"]:
