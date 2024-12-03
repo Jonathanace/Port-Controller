@@ -9,29 +9,6 @@ import numpy as np
 import copy
 import sys
 
-'''
-IMPORTANT: If there are two Nodes who have the same heuristic value, pick the Node that moves the container further away from the center
-Heuristic Ideas: Difference btwn ideal difference btwn side weights and current difference btwn side weights 
-                Total time taken to make the move multiplied by the weight of the container being moved
-                Weight of heavier side divided by number of columns with containers in them.
-                Still unsure of wanting to keep the center empty or making it priority to be placed in.
-                Teammate mentioned using heuristic something like multiplying weight by distance from center
-                Distance from center: min(abs(6 - col), (7 - col))
-                Containers on left side will be distance from 6, containers on right side will be distance from 7.
-'''
-
-'''
-Editing balance function: need to keep track of ideal weight difference, can be done by editing can_balance to also return the difference
-Need to know how long each move takes while balance function is running, can't calculate time afterwards. Need to call calculate time during balance function.
-Can also edit Node class to keep track of time spent, but not 1000% necessary.
-Might need to write a new function to find every column that has at least one container in it.
-For now, since finding spots a container moves to starts from the middle, just doing something like if curr <= min set min to curr should keep the center clear.
-'''
-
-'''
-Edit Node class, give it a Step object attribute and a create step function that calculates time and checks the two positions. Put it in constructer and run if previous node != None.
-'''
-
 #Checks if a ship can be balanced by looking through each combination of containers and seeing if any pair of sums is within 10% of each other.
 def can_balance(items: list["Item"]) -> bool:
     arr = []
@@ -179,80 +156,6 @@ def swap_squares(ship: Node, first_obj: tuple[int, int], second_obj: tuple[int, 
     curr[second_obj[0]][second_obj[1]].position = new_pos2
     return curr
 
-#Estimates the time it took for a container to be moved to another as well as the two positions involved in a step. Returns an integer and a pair of tuples.
-def time_estimate(curr: Node, prev: Node):
-    curr_ship = curr.ship
-    positions = []
-    if(prev == None):
-        return positions
-    prev_ship = prev.ship
-    changes = 0
-    start = 0
-    while changes < 2:
-        for i in range(len(curr_ship)):
-            for j in range(len(curr_ship[i])):
-                if curr_ship[i][j].weight != prev_ship[i][j].weight:
-                    temp = curr_ship[i][j].position
-                    positions.append(temp)
-                    changes += 1
-    start_node = positions[0]
-    end_node = positions[1]
-    first_column = start_node[1]
-    second_column = end_node[1]
-    start_row = start_node[0]
-    end_row = end_node[0]
-    max_height = max(start_row, end_row)
-    for k in range(min(first_column, second_column), max(first_column, second_column) - 1):
-        n = 8
-        while n >= 1:
-            p = n - 1
-            if prev_ship[p][k].is_empty == False:
-                if n + 1 > max_height:
-                    max_height = n + 1
-            n -= 1
-    sum = 0
-    sum += max_height - start_row
-    sum += max_height - end_row
-    sum += abs(second_column - first_column)
-    return sum, positions
-
-
-#Takes the output from the main balancing function and translates it into an array of step objects. Outputs the array. Intended to be used by front end, and will be the function that is called when the user selects the balancing option.
-#TO DO: add container weight to each step object
-def get_balancing_steps(items: list["Item"]):
-    res = []
-    curr, is_sifted = balance(items)
-    movement_type = "Balance"
-    if is_sifted == True:
-        movement_type = "SIFT"
-    else:
-        movement_type = "Balance"
-    while(curr != None):
-        prev = curr.previous_node
-        if(prev == None):
-            break
-        time_estimation, positions = time_estimate(curr, prev)
-        p = positions[0]
-        x = p[0] - 1
-        y = p[1] - 1
-        start_pos = tuple([0,0])
-        end_pos = tuple([0,0])
-        if curr.ship[x][y].is_empty == True:
-            start_pos = positions[0]
-            end_pos = positions[1]
-        else:
-            start_pos = positions[1]
-            end_pos = positions[0]
-        s1 = end_pos[0] - 1
-        s2 = end_pos[1] - 1
-        temp_grid = curr.ship[s1][s2]
-        weight = temp_grid.weight
-        temp = Step(start_pos, end_pos, time_estimation, movement_type, weight)
-        res.append(temp)
-        curr = prev
-    res.reverse()
-    return res
-    
 def get_steps(manifest: str):
     res = []
     items = parse_manifest(manifest)
@@ -261,63 +164,10 @@ def get_steps(manifest: str):
         prev = curr.previous_node
         if(prev == None):
             break
-        # print(curr.get_h())
-        # print(abs(curr.get_h() - prev.get_h()))
         res.append(curr.get_step())
         curr = prev
     res.reverse()
     return res
-    
-def calculate_h(ship: Node, is_sifted: bool):
-    if ship.previous_node == None:
-        return 0, 0, 0
-    curr = ship.ship
-    prev = ship.previous_node.ship
-    left = 0
-    right = 0
-    bal_diff = 0
-    if(is_sifted == True):
-        l, r = sifted_weights(ship)
-        bal_diff = abs(l - r)
-    for i in range(6):
-        j = i + 6
-        for n in range(len(curr) - 1):
-            temp_left = curr[n][i]
-            temp_right = curr[n][j]
-            left += temp_left.weight
-            right += temp_right.weight
-    h1 = abs(left - right) - bal_diff
-    step = ship.step
-    time = step.time_estimate
-    container_pos = step.start_pos
-    x = container_pos[0] - 1
-    y = container_pos[1] - 1
-    weight_below = 1
-    if(x >= 1):
-        print(container_pos)
-        temp_grid = prev[x - 1][y]
-        print(temp_grid.position)
-        weight_below = max(1, temp_grid.weight)
-    h2 = weight_below * time
-    container_columns = 0
-    if(left > right):
-        for i in range(6):
-            n = 7
-            while n >= 0:
-                if curr[n][i].is_empty == False and curr[n][i].is_hull == False:
-                    container_columns += 1
-                n -= 1
-    else:
-        for i in range(6, 12):
-            n = 7
-            while n >= 0:
-                if curr[n][i].is_empty == False and curr[n][i].is_hull == False:
-                    container_columns += 1
-                n -= 1
-    h3 = max(left, right) / container_columns
-    return h1, h2, h3
-    
-    
     
 files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
 for file in files:
