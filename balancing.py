@@ -9,15 +9,6 @@ import numpy as np
 import copy
 import sys
 
-'''
-IMPORTANT: If there are two Nodes who have the same heuristic value, pick the Node that moves the container further away from the center
-Heuristic Ideas: Difference btwn ideal difference btwn side weights and current difference btwn side weights 
-                Total time taken to make the move multiplied by the weight of the container being moved
-                Weight of heavier side divided by number of columns with containers in them.
-'''
-
-
-
 #Checks if a ship can be balanced by looking through each combination of containers and seeing if any pair of sums is within 10% of each other.
 def can_balance(items: list["Item"]) -> bool:
     arr = []
@@ -32,9 +23,9 @@ def can_balance(items: list["Item"]) -> bool:
         data = [0]*r
         container_combinations(arr, data, 0, len(arr) - 1, 0, r, total_weight, sums)
     for sum in sums:
-        if 0.9 * sum < total_weight - sum < 1.1 * sum:
-            return True
-    return False
+        if (10/11) * sum < total_weight - sum < 1.1 * sum:
+            return True #, total_weight - sum
+    return False #, total_weight - sum
 
 #Recursive function that checks every possible combination of container weights.
 def container_combinations(arr, data, start, end, index, r, total, sums):
@@ -146,9 +137,10 @@ def is_balanced(ship: Node):
             temp_right = curr[n][j]
             left += temp_left.weight
             right += temp_right.weight
-    diff = min(left, right) / max(left, right)
-    if diff > 0.9:
-        return True
+    if min(left, right) != 0:
+        diff = max(left, right) / min(left, right)
+        if diff < 1.1:
+            return True
     return False
 
 #Changes position and information of two squares on the ship. Outputs an array that has those changes.
