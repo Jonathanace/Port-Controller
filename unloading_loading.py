@@ -315,32 +315,31 @@ nodes3 = get_all_the_nodes(final_node_case_3)
 print(len(nodes3))
 
 def get_position_moved(ship1, ship2):
+    indexes = []
     for i in range(len(ship1)):
         for j in range(len(ship1[0])):
             if ship1[i][j].name != ship2[i][j].name:
-                return (i, j)
-def items_swapped(ship1, ship2):
-    return
+                indexes.append([i,j])
+    return indexes
+
 
 #unloading and loading
-def get_time_estimate(position_ship, ship):
-    time = 2
-    portal_loc = [0, 9]
-    
-    return time
 
 def get_steps(nodes):
     steps = []
     for i in range(0, len(nodes)-1):
-        if nodes[i+1].crane_pos == "Dock":
-            start_pos = get_position_moved(nodes[i].ship,nodes[i+1].ship)
-            step = Step(start_pos, "Dock", 10, "Unloading" )
-            steps.append(step)
-        if nodes[i].crane_pos == "Dock" and nodes[i+1].crane_pos == "Ship":
-            end_pos = get_position_moved(nodes[i].ship,nodes[i+1].ship)
-            step = Step("Dock", end_pos, 10, "Loading")
+        break
+        # if nodes[i+1].crane_pos == "Dock":
+        #     start_pos = get_position_moved(nodes[i].ship,nodes[i+1].ship)
+        #     step = Step(start_pos, "Dock", 10, "Unloading" )
+        #     steps.append(step)
+        # if nodes[i].crane_pos == "Dock" and nodes[i+1].crane_pos == "Ship":
+        #     end_pos = get_position_moved(nodes[i].ship,nodes[i+1].ship)
+        #     step = Step("Dock", end_pos, 10, "Loading")
     return steps
 steps = get_steps(nodes)
+steps2 = get_steps(nodes2)
+steps3 = get_steps(nodes3)
 # print(len(steps))
 def output_step(steps):
     for step in steps:
