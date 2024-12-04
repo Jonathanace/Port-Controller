@@ -345,6 +345,16 @@ print("time test")
 print(get_time([0,8], [1,1]))
 print(get_time("Dock", [0,0]))
 print(get_time([0,0], "dock"))
+
+def move_first(ship1, pos_moved):
+    start_pos = []
+    for pos in pos_moved:
+        if ship1[pos[0], pos[1]].isEmpty == False:
+            start_pos = [pos[0],pos[1]]
+            return start_pos 
+
+    return
+
 def get_steps(nodes_list):
     steps = []
     current_pos = [0,9]
@@ -354,7 +364,7 @@ def get_steps(nodes_list):
         if len(pos_moved) == 2:
             break
         else:
-            if nodes_list[i].ship.crane_pos == "Dock":
+            if nodes_list[i].crane_pos == "Dock":
                 step1 = Step(current_pos, pos_moved[0], get_time(current_pos,pos_moved[0]), "Unloading" )
                 steps.append(step1)
                 current_pos = pos_moved[0]
@@ -362,7 +372,7 @@ def get_steps(nodes_list):
                 steps.append(step2)
                 current_pos = "Dock"
                 continue
-            if nodes_list[i].ship.crane_pos == "Ship":
+            if nodes_list[i].crane_pos == "Ship":
                 if current_pos == "Dock":
                     step1 = Step(current_pos, pos_moved[0], get_time(current_pos,  pos_moved[0]), "Loading")
                     steps.append(step1)
@@ -392,5 +402,6 @@ steps3 = get_steps(nodes3)
 # # print(len(steps))
 def output_step(steps):
     for step in steps:
-        print(f"Start position: {step.start_pos} , end position: {step.end_pos} , time: {step.time_estimate} minutes, moevement : {step.movement_type}")
+        print(f"Start position: {step.start_pos} , end position: {step.end_pos} , time: {step.time_estimate} minutes, movement : {step.movement_type}")
 output_step(steps)
+output_step(steps2)
