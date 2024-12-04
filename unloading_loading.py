@@ -348,12 +348,12 @@ print(get_time([0,0], "dock"))
 
 def move_first(ship1, pos_moved):
     start_pos = []
-    for pos in pos_moved:
-        if ship1[pos[0], pos[1]].isEmpty == False:
-            start_pos = [pos[0],pos[1]]
-            return start_pos 
+    for i in range(pos_moved):
+        if ship1[pos_moved[i][0], pos_moved[i][1]].isEmpty == False:
+            start_pos = [pos_moved[i][0],pos_moved[i][1]]
+            return start_pos, i 
 
-    return
+
 
 def get_steps(nodes_list):
     steps = []
@@ -362,6 +362,8 @@ def get_steps(nodes_list):
         print(nodes_list[i].crane_pos)
         pos_moved = get_position_moved(nodes_list[i-1].ship, nodes_list[i].ship)
         if len(pos_moved) == 2:
+            first_move_pos , first_move_index  = move_first(nodes_list[i-1].ship, pos_moved[0])
+            
             break
         else:
             if nodes_list[i].crane_pos == "Dock":
