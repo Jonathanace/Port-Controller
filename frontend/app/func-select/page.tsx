@@ -44,12 +44,20 @@ export function ManifestUpload({ onUpload } : ManifestUploadProps) {
 }
 
 interface FuncSelectProps {
-  onSelect: () => void;
+  selectedOperation: string;
+  onSelect: (value: string) => void;
 }
 
 export function FuncSelect({ onSelect } : FuncSelectProps) {
+  const [selectedOperation, setSelectedOperation] = useState<string>('default');
+
+  const handleSelect = (value: string) => {
+    setSelectedOperation(value);
+    onSelect(value);
+  }
+
   return (
-    <RadioGroup onValueChange={onSelect}>
+    <RadioGroup onValueChange={handleSelect}>
       <div className="flex items-center space-x-2">
         <RadioGroupItem value="default" id="r1" />
         <Label htmlFor="r1">Balance Operation</Label>
@@ -65,6 +73,7 @@ export function FuncSelect({ onSelect } : FuncSelectProps) {
 export default function Page() {
   const [funcSelected, setFuncSelected] = useState(false);
   const [manifestUploaded, setManifestUploaded] = useState(false);
+  const [selectedOperation, setSelectedOperation] = useState<string>('default');
 
   const progress = (funcSelected ? 50 : 0) + (manifestUploaded ? 50 : 0)
 
@@ -85,7 +94,7 @@ export default function Page() {
               <TabsContent value="select operation">
                 Select your desired operation.
                 <div>
-                  <FuncSelect onSelect={() => setFuncSelected(true)}/>
+                  <FuncSelect selectedOperation={selectedOperation} onSelect={() => setFuncSelected(true)}/>
                 </div>
               </TabsContent>
               <TabsContent value="upload manifest">
