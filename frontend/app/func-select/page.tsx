@@ -16,6 +16,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+
 import Link from 'next/link'
 
 interface ManifestUploadProps {
@@ -70,20 +79,39 @@ export function FuncSelect({ onSelect } : FuncSelectProps) {
   )
 }
 
+export function ManifestDialog() {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <Button>Continue</Button> 
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Processing Manifest</DialogTitle>
+          <DialogDescription>
+            Do not exit this window.
+
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 export default function Page() {
   const [funcSelected, setFuncSelected] = useState(false);
   const [manifestUploaded, setManifestUploaded] = useState(false);
   const [selectedOperation, setSelectedOperation] = useState<string>('default');
 
-  const progress = (funcSelected ? 50 : 0) + (manifestUploaded ? 50 : 0)
+  const select_progress = (funcSelected ? 50 : 0) + (manifestUploaded ? 50 : 0)
 
   return (
     <> 
       <div className="grid grid-rows-[auto, 1fr, auto] justify-items-center min-h-screen p-10 pb-20 gap-4 sm:p-10 font-[family-name:var(--font-geist-sans)]">
         <span className="w-[400px]">
           <div className="mb-5">
-            Progress ({progress / 50}/2)
-            <Progress value={progress} />
+            Progress ({select_progress / 50}/2)
+            <Progress value={select_progress} />
           </div>
           <div className="mb-20">
             <Tabs defaultValue="select operation" className="w-[400px]">
@@ -105,10 +133,11 @@ export default function Page() {
           </div>
 
           <div className="flex justify-center"> 
-            {progress == 100 ? (
-              <Button asChild>
-                <Link href="/plan">Continue</Link>
-              </Button>
+            {select_progress == 100 ? (
+              <ManifestDialog></ManifestDialog>
+              // <Button asChild>
+              //   <Link href="/plan">Continue</Link>
+              // </Button>
             ) : (
               <TooltipProvider>
                 <Tooltip>
