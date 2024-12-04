@@ -31,11 +31,13 @@ interface ManifestUploadProps {
   onUpload: () => void;
 }
 
-export function ManifestUpload({ onUpload } : ManifestUploadProps) {
+interface ManifestDialogButtonProps { operation: string; }
+
+export function ManifestUpload({ onUpload }: ManifestUploadProps) {
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const file = event.target.files[0]
-      const formData = new FormData();  
+      const formData = new FormData();
       formData.append('file', file)
       const response = await fetch('http://localhost:5000/upload', {
         method: 'POST',
@@ -47,7 +49,7 @@ export function ManifestUpload({ onUpload } : ManifestUploadProps) {
 
   return (
     <div className="grid w-full max-w-sm items-center gap-1.5">
-      <Input id="manifest" type="file" onChange={handleUpload}/>
+      <Input id="manifest" type="file" onChange={handleUpload} />
     </div>
   )
 }
@@ -57,18 +59,15 @@ interface FuncSelectProps {
   onSelect: (value: string) => void;
 }
 
-export function FuncSelect({ onSelect } : FuncSelectProps) {
-  const [selectedOperation, setSelectedOperation] = useState<string>('default');
-
+export function FuncSelect({ selectedOperation, onSelect }: FuncSelectProps) {
   const handleSelect = (value: string) => {
-    setSelectedOperation(value);
     onSelect(value);
-  }
+  };
 
   return (
-    <RadioGroup onValueChange={handleSelect}>
+    <RadioGroup value={selectedOperation} onValueChange={handleSelect}>
       <div className="flex items-center space-x-2">
-        <RadioGroupItem value="default" id="r1" />
+        <RadioGroupItem value="balance" id="r1" />
         <Label htmlFor="r1">Balance Operation</Label>
       </div>
       <div className="flex items-center space-x-2">
@@ -76,25 +75,36 @@ export function FuncSelect({ onSelect } : FuncSelectProps) {
         <Label htmlFor="r2">Load/Unload Operation</Label>
       </div>
     </RadioGroup>
-  )
+  );
 }
 
-export function ManifestDialog() {
+export const ManifestDialogButton: React.FC<ManifestDialogButtonProps> = ({ operation }) => {
   return (
     <Dialog>
-      <DialogTrigger>
-        <Button>Continue</Button> 
+      <DialogTrigger asChild>
+        <Button onClick={() => ProcessManifest(operation)}>Continue</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Processing Manifest</DialogTitle>
           <DialogDescription>
             Do not exit this window.
-
           </DialogDescription>
         </DialogHeader>
       </DialogContent>
     </Dialog>
+  )
+}
+
+export const ProcessManifest = (operation: string) => {
+  fetch('http://localhost:5000/process-manifest',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ parse_option: operation })
+    }
   )
 }
 
@@ -106,7 +116,7 @@ export default function Page() {
   const select_progress = (funcSelected ? 50 : 0) + (manifestUploaded ? 50 : 0)
 
   return (
-    <> 
+    <>
       <div className="grid grid-rows-[auto, 1fr, auto] justify-items-center min-h-screen p-10 pb-20 gap-4 sm:p-10 font-[family-name:var(--font-geist-sans)]">
         <span className="w-[400px]">
           <div className="mb-5">
@@ -122,22 +132,25 @@ export default function Page() {
               <TabsContent value="select operation">
                 Select your desired operation.
                 <div>
-                  <FuncSelect selectedOperation={selectedOperation} onSelect={() => setFuncSelected(true)}/>
+                  <FuncSelect
+                    selectedOperation={selectedOperation}
+                    onSelect={(value) => {
+                      setSelectedOperation(value);
+                      setFuncSelected(true);
+                    }}
+                  />
                 </div>
               </TabsContent>
               <TabsContent value="upload manifest">
                 Upload your manifest here.
-                <ManifestUpload onUpload={() => setManifestUploaded(true)}/>
+                <ManifestUpload onUpload={() => setManifestUploaded(true)} />
               </TabsContent>
             </Tabs>
           </div>
 
-          <div className="flex justify-center"> 
+          <div className="flex justify-center">
             {select_progress == 100 ? (
-              <ManifestDialog></ManifestDialog>
-              // <Button asChild>
-              //   <Link href="/plan">Continue</Link>
-              // </Button>
+              <ManifestDialogButton operation={selectedOperation} />
             ) : (
               <TooltipProvider>
                 <Tooltip>
@@ -150,7 +163,6 @@ export default function Page() {
                 </Tooltip>
               </TooltipProvider>
             )}
-            
           </div>
         </span>
       </div>
