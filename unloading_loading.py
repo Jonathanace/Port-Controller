@@ -322,13 +322,61 @@ def get_position_moved(ship1, ship2):
                 indexes.append([i,j])
     return indexes
 
-
 #unloading and loading
 
-def get_steps(nodes):
+def get_time(index1, index2):
+    time = 0 
+    if type(index1) != str and type(index2) != str:
+        x_distance = abs(index1[0] - index2[0])
+        y_distance = abs(index1[1] - index2[1])
+        time = x_distance + y_distance
+    else:
+        portal = [0,9]
+        portal_time = 2
+        if type(index1) == str:
+            x_distance = abs(index2[0] - portal[0])
+            y_distance = abs(index2[1] - portal[1])
+        else:
+            x_distance = abs(index1[0] - portal[0])
+            y_distance = abs(index1[1] - portal[1])
+        time = x_distance + y_distance + portal_time
+    return time
+print("time test")
+print(get_time([0,8], [1,1]))
+print(get_time("Dock", [0,0]))
+print(get_time([0,0], "dock"))
+def get_steps(nodes_list):
     steps = []
-    for i in range(0, len(nodes)-1):
-        break
+    current_pos = [0,9]
+    for i in range(1, len(nodes_list)):
+        print(nodes_list[i].crane_pos)
+        pos_moved = get_position_moved(nodes_list[i-1].ship, nodes_list[i].ship)
+        if len(pos_moved) == 2:
+            break
+        else:
+            if nodes_list[i].ship.crane_pos == "Dock":
+                step1 = Step(current_pos, pos_moved[0], get_time(current_pos,pos_moved[0]), "Unloading" )
+                steps.append(step1)
+                current_pos = pos_moved[0]
+                step2 = Step(current_pos, "Dock", get_time(current_pos,"Dock"), "Unloading" )
+                steps.append(step2)
+                current_pos = "Dock"
+                continue
+            if nodes_list[i].ship.crane_pos == "Ship":
+                if current_pos == "Dock":
+                    step1 = Step(current_pos, pos_moved[0], get_time(current_pos,  pos_moved[0]), "Loading")
+                    steps.append(step1)
+                    current_pos = pos_moved[0]
+                    continue    
+                else: 
+                    step1 = Step(current_pos, "Dock", get_time(current_pos, "Dock"), "Loading")
+                    steps.append(step1)
+                    current_pos = "Dock"
+                    step2 = Step(current_pos, pos_moved[0], get_time(current_pos,  pos_moved[0]), "Loading")
+                    steps.append(step2)
+                    continue
+                
+    
         # if nodes[i+1].crane_pos == "Dock":
         #     start_pos = get_position_moved(nodes[i].ship,nodes[i+1].ship)
         #     step = Step(start_pos, "Dock", 10, "Unloading" )
@@ -339,8 +387,9 @@ def get_steps(nodes):
     return steps
 steps = get_steps(nodes)
 steps2 = get_steps(nodes2)
+print("node 3")
 steps3 = get_steps(nodes3)
-# print(len(steps))
+# # print(len(steps))
 def output_step(steps):
     for step in steps:
         print(f"Start position: {step.start_pos} , end position: {step.end_pos} , time: {step.time_estimate} minutes, moevement : {step.movement_type}")
