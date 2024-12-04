@@ -27,22 +27,35 @@ def upload_file():
 
 @app.route('/process-manifest', methods=['POST'])
 def process_manifest():
+    app.logger.info('Process Manifest called')
     data = request.get_json()
-    if not data['parse_option']: 
+    if data:
+        app.logger.info('Data received')
+    else:
+        app.logger.warning('Data not recieved')
+
+    parse_option = data.get('parse_option')
+    if not parse_option: 
+        app.logger.warning('No parsing option passed!')
         return jsonify({'error': 'No parsing option passed'}), 400
     
     with open(manifest_path) as file:
-        pprint(parse_manifest(file))
+        app.logger.info('Parsing Manifest')
+        parsed_manifest = parse_manifest(file.read())
+        app.logger.info('Manifest Parsed')
     
-    if data['parse_option'] == 'balance':
-        pass
-    elif data['parse_option'] == 'load/unload':
+    
+    if parse_option == 'balance':
+        app.logger.info('Balance function selected')
+    elif parse_option == 'load/unload':
         pass # FIXME
     else:
-        return jsonify({'error': 'Invalid parsing option passed'}), 400
+        warning = f'Invalid parsing option passed: {parse_option}'
+        app.logger.warning(warning)
+        return jsonify({'error': warning}), 400
 
 
 
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(port=5000, debug=True)
