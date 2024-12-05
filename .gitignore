@@ -1,7 +1,8 @@
-ShipCase*.txt
-SilverQueen.txt
 main.py
 nodes.py
 states.py
 util.py
 step.py
+ShipCase*.txt
+SilverQueen.txt
+.gitignore

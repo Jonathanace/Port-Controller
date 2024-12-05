@@ -300,6 +300,9 @@ unload_case3 = [("Cow",1)]
 load_case3 = [("Bat",1), ("Rat",1)]
 final_node_case_3 = unload_load(Case3, unload_case3, load_case3)
 
+unload_case3 = [("Cow",1)]
+load_case3 = [("Bat",1)]
+
 
 def get_all_the_nodes(goal_node):
     curr_node = goal_node
@@ -367,11 +370,11 @@ def get_steps(nodes_list):
             break
         else:
             if nodes_list[i].crane_pos == "Dock":
-                step1 = Step(current_pos, pos_moved[0], get_time(current_pos,pos_moved[0]), "Unloading" )
-                steps.append(step1)
-                current_pos = pos_moved[0]
-                step2 = Step(current_pos, "Dock", get_time(current_pos,"Dock"), "Unloading" )
-                steps.append(step2)
+                # step1 = Step(current_pos, pos_moved[0], get_time(current_pos,pos_moved[0]), "Unloading" )
+                # steps.append(step1)
+                # current_pos = pos_moved[0]
+                step = Step(current_pos, "Dock", get_time(current_pos,"Dock"), "Unloading" )
+                steps.append(step)
                 current_pos = "Dock"
                 continue
             if nodes_list[i].crane_pos == "Ship":
@@ -380,13 +383,13 @@ def get_steps(nodes_list):
                     steps.append(step1)
                     current_pos = pos_moved[0]
                     continue    
-                else: 
-                    step1 = Step(current_pos, "Dock", get_time(current_pos, "Dock"), "Loading")
-                    steps.append(step1)
-                    current_pos = "Dock"
-                    step2 = Step(current_pos, pos_moved[0], get_time(current_pos,  pos_moved[0]), "Loading")
-                    steps.append(step2)
-                    continue
+                # else: 
+                #     step1 = Step(current_pos, "Dock", get_time(current_pos, "Dock"), "Loading")
+                #     steps.append(step1)
+                #     current_pos = "Dock"
+                #     step2 = Step(current_pos, pos_moved[0], get_time(current_pos,  pos_moved[0]), "Loading")
+                #     steps.append(step2)
+                #     continue
                 
     
         # if nodes[i+1].crane_pos == "Dock":
