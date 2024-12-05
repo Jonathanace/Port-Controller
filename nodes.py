@@ -169,3 +169,9 @@ class Node:
         if self.previous_node == None:
             return 0
         return self.h
+
+    def check_aviable_load(self):
+        available_moves = []
+        for j in range(len(self.ship[0])):
+            available_moves.append(self.check_column(j))
+        return available_moves
