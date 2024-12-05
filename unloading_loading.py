@@ -36,7 +36,7 @@ Case5 = Node(case5)
 case6 = to_grid(res6)
 Case6 = Node(case6)
 
-unload = [("Cat", 1)]
+
 
 
 def find_item_amount(item : str, ship):
@@ -60,10 +60,6 @@ def calculate_goal_state(ship, unload : list[tuple[str,int]] = None,load : list[
             goal_state.append(final_cargo)
 
     return goal_state
-unload_case2 = None
-load_case2 = [("Bat",1)]
-print(calculate_goal_state(Case1.ship,unload))
-print(calculate_goal_state(Case2.ship, unload_case2,load_case2))
 
 def get_state(items_moved : list[str] , ship):
     state = []
@@ -152,10 +148,6 @@ def load_item(item,curr_node):
          if count == 1:
              break
     return child_nodes
-child_nodes_case_2 = load_item("Bat",Case2)
-child_node_1_case2 = child_nodes_case_2[0]
-print(get_state(["Bat"], child_node_1_case2.ship))
-print(child_node_1_case2.ship[3,0].name)   
 
 
 def check_goal_state(curr_state,goal_state):
@@ -173,8 +165,7 @@ def change_amount(item : tuple[str,int] , movement ):
         item = tuple(temp_item)
 
     return item
-unload = [("Cat", 1)]
-load = None
+
 # return false if two states are different true if they are the same
 def check_two_ships(ship1, ship2):
     for i in range(len(ship1)):
@@ -252,6 +243,7 @@ def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[t
         curr_node = frontier_node[0]
         curr_unload = frontier_move[0][0]
         curr_load = frontier_move[0][1]
+unload = [("Cat", 1)]
 final_node_case_1 = unload_load(Case1,unload)
 unload_case2 = None
 load_case2 = [("Bat",1)]
