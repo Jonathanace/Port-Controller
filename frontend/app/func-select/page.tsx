@@ -10,6 +10,8 @@ import Header from "@/components/ui/Header"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import React, { useState } from 'react';
+import { toast } from "@/hooks/use-toast";
+
 import {
   Tooltip,
   TooltipContent,
@@ -27,24 +29,157 @@ import {
 
 import Link from 'next/link'
 
-interface ManifestUploadProps {
-  onUpload: () => void;
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+
+const items = [
+  {
+    id: "recents",
+    label: "Recents",
+  },
+  {
+    id: "home",
+    label: "Home",
+  },
+  {
+    id: "applications",
+    label: "Applications",
+  },
+  {
+    id: "desktop",
+    label: "Desktop",
+  },
+  {
+    id: "downloads",
+    label: "Downloads",
+  },
+  {
+    id: "documents",
+    label: "Documents",
+  },
+] as const
+
+const FormSchema = z.object({
+  items: z.array(z.string()).refine((value) => value.some((item) => item), {
+    message: "You have to select at least one item.",
+  }),
+})
+
+export function CheckboxReactHookFormMultiple() {
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      items: ["recents", "home"],
+    },
+  })
+
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+    toast({
+      title: "You submitted the following values:",
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        </pre>
+      ),
+    })
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="items"
+          render={() => (
+            <FormItem>
+              <div className="mb-4">
+                <FormLabel className="text-base">Cargo Select</FormLabel>
+                <FormDescription>
+                  Select the containers you would like to offload.
+                </FormDescription>
+              </div>
+              {items.map((item) => (
+                <FormField
+                  key={item.id}
+                  control={form.control}
+                  name="items"
+                  render={({ field }) => {
+                    return (
+                      <FormItem
+                        key={item.id}
+                        className="flex flex-row items-start space-x-3 space-y-0"
+                      >
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value?.includes(item.id)}
+                            onCheckedChange={(checked) => {
+                              return checked
+                                ? field.onChange([...field.value, item.id])
+                                : field.onChange(
+                                    field.value?.filter(
+                                      (value) => value !== item.id
+                                    )
+                                  )
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          {item.label}
+                        </FormLabel>
+                      </FormItem>
+                    )
+                  }}
+                />
+              ))}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit</Button>
+      </form>
+    </Form>
+  )
 }
 
-interface ManifestDialogButtonProps { operation: string; }
+interface ManifestUploadProps {
+  onUpload: (shipName: string) => void;
+}
+
+interface ManifestDialogButtonProps { 
+  operation: string; 
+  shipName: string;
+}
 
 export function ManifestUpload({ onUpload }: ManifestUploadProps) {
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
-      const file = event.target.files[0]
+      const file = event.target.files[0];
+      const shipName = file.name;
       const formData = new FormData();
       formData.append('file', file)
       const response = await fetch('http://localhost:5000/upload', {
         method: 'POST',
         body: formData
-      });
+      })
+      onUpload(shipName);
+      
+      // const data = await response.json();
+      
+      
     }
-    onUpload();
+    
   };
 
   return (
@@ -67,28 +202,38 @@ export function FuncSelect({ selectedOperation, onSelect }: FuncSelectProps) {
   return (
     <RadioGroup value={selectedOperation} onValueChange={handleSelect}>
       <div className="flex items-center space-x-2">
-        <RadioGroupItem value="balance" id="r1" />
+        <RadioGroupItem value="Balance" id="r1" />
         <Label htmlFor="r1">Balance Operation</Label>
       </div>
       <div className="flex items-center space-x-2">
-        <RadioGroupItem value="comfortable" id="r2" />
+        <RadioGroupItem value="Load/Unload" id="r2" />
         <Label htmlFor="r2">Load/Unload Operation</Label>
       </div>
     </RadioGroup>
   );
 }
 
-export const ManifestDialogButton: React.FC<ManifestDialogButtonProps> = ({ operation }) => {
+
+
+export const ManifestDialogButton: React.FC<ManifestDialogButtonProps> = ({ operation, shipName }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button onClick={() => ProcessManifest(operation)}>Continue</Button>
+        <Button>Continue</Button>
+        {/* <Button onClick={() => ProcessManifest(operation)}>Continue</Button> */}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Processing Manifest</DialogTitle>
+          <DialogTitle>
+            { operation === 'Balance' 
+              ? `Balance Operation Selected for ${shipName}`
+              : `Load/Unload Operation Selected for ${shipName}`
+            }
+          </DialogTitle>
           <DialogDescription>
-            Do not exit this window.
+          {operation === 'Load/Unload' && (
+              <><CheckboxReactHookFormMultiple /></>
+          )}
           </DialogDescription>
         </DialogHeader>
       </DialogContent>
@@ -112,6 +257,7 @@ export default function Page() {
   const [funcSelected, setFuncSelected] = useState(false);
   const [manifestUploaded, setManifestUploaded] = useState(false);
   const [selectedOperation, setSelectedOperation] = useState<string>('default');
+  const [shipName, setShipName] = useState<string>('');
 
   const select_progress = (funcSelected ? 50 : 0) + (manifestUploaded ? 50 : 0)
 
@@ -143,14 +289,17 @@ export default function Page() {
               </TabsContent>
               <TabsContent value="upload manifest">
                 Upload your manifest here.
-                <ManifestUpload onUpload={() => setManifestUploaded(true)} />
+                <ManifestUpload onUpload={(name) => {
+                  setManifestUploaded(true);
+                  setShipName(name);
+                 }} />
               </TabsContent>
             </Tabs>
           </div>
 
           <div className="flex justify-center">
             {select_progress == 100 ? (
-              <ManifestDialogButton operation={selectedOperation} />
+              <ManifestDialogButton operation={selectedOperation} shipName={shipName} />
             ) : (
               <TooltipProvider>
                 <Tooltip>
