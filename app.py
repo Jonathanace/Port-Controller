@@ -19,9 +19,6 @@ UPLOAD_FOLDER = 'uploads'
 manifest_path = os.path.join(UPLOAD_FOLDER, 'manifest.txt')
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-else:
-    # os.remove(manifest_path)
-    pass
 
 ### Setup Plan Folder
 PLAN_FOLDER = 'plan'
@@ -32,14 +29,10 @@ else:
     for file in files:
         os.remove(file)
 
-
-
-
 ### Create colormap for plan display
 # 0: white, 1: black, 2: gray, 3: red, 4: green
 colors = ['white', 'black', 'gray', 'red', 'green']  
 cmap = ListedColormap(colors)
-
 
 def make_grid(prev_grid=None, start_pos=None, end_pos=None):
     if prev_grid is None: # If no previous grid, generate a new grid from the manifest
@@ -93,6 +86,10 @@ def upload_file():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
     if file:
+        try:
+            os.remove(manifest_path)
+        except:
+            pass
         file.save(manifest_path)
         app.logger.info('Manifest Saved')
         return jsonify(), 200 # FIXME: return ship's name here
@@ -153,6 +150,6 @@ def balance_manifest():
         display_grid(grid)
     
 if __name__ == '__main__':
-    balance_manifest()
+    # balance_manifest()
 
-    # app.run(port=5000, debug=True)
+    app.run(port=5000, debug=True)
