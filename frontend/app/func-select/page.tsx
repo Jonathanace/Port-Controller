@@ -9,7 +9,7 @@ import { HeaderProvider } from "@/context/HeaderContext";
 import Header from "@/components/ui/Header"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from "@/hooks/use-toast";
 
 import {
@@ -78,12 +78,22 @@ const FormSchema = z.object({
 })
 
 export function CheckboxReactHookFormMultiple() {
+  const [items, setItems] = useState<{ id: string; label: string }[]>([]);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       items: ["recents", "home"],
     },
   })
+
+  useEffect(() => {
+    const fetchItems = async () => {
+      const response = await fetch('http://localhost:5000/get_containers');
+      const containers = await response.json();
+      setItems(containers);
+    }
+    fetchItems();
+  }, []);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     toast({

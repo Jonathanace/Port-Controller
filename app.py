@@ -4,6 +4,7 @@ import os
 from utils import parse_manifest
 from pprint import pprint
 from balancing import get_steps
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -59,6 +60,15 @@ def process_manifest():
         app.logger.warning(warning)
         return jsonify({'error': warning}), 400
     
+@app.route('/get_containers', methods=['GET'])
+def get_containers():
+    with open (manifest_path) as manifest:
+        parsed_manifest = parse_manifest(manifest.read())
+    container_names = [{'id': i['company'], 'label': i['company']} for i in parsed_manifest if i['company'] not in ['UNUSED', 'NAN']]
+    
+    app.logger.info(container_names)
+    return jsonify(container_names), 200
 
 if __name__ == '__main__':
+    # get_containers()
     app.run(port=5000, debug=True)
