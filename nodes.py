@@ -4,7 +4,7 @@ from utils import parse_manifest
 from utils import Item
 from step import Step
 class Node:
-    def __init__(self, ship,movement = None, holding_area = None, trucks = False, previous_node = None, crane_pos = "Start", items_to_unload = None):
+    def __init__(self, ship,movement = None, holding_area = None, trucks = False, previous_node = None, crane_pos = "Start", moves = None):
         self.ship = ship
         self.holding_area = holding_area
         self.trucks = trucks
@@ -12,12 +12,19 @@ class Node:
         self.child_nodes = []
         self.movement = movement
         self.crane_pos = crane_pos
-        self.items_to_unload = items_to_unload
+        self.moves = moves
         if previous_node != None:
             self.step = self.create_step()
             self.calculate_h()
+        if self.moves is not None:
+            self.unload_item = self.get_items()
     
-    
+    def get_items(self):
+        unload_move = self.moves[0]
+        items = []
+        for unload in unload_move:
+            items.append(unload[0])
+        return items
     # checks if there is anything above the container, will be used in the move function
     # index [x,y]
     def check_above(self,index: tuple[int,int]) -> bool:
@@ -221,15 +228,12 @@ class Node:
                 h1 = self.check_unload_load()
                 position = self.get_position()
                 h2 = self.check_distance_to_portal(position)
-                self.h = h1 + h2
+                self.h = h1 + h2 + self.previous_node.h
             if self.movement == "Load":
                 h1 = self.check_unload_load()
                 position = self.get_position()
                 h2 = self.check_distance_to_portal(position)
-                self.h = h1 + h2
-            if self.movement == "Move_On_Top":
-                self.h
-                
+                self.h = h1 + h2 + self.previous_node.h
     
     def get_step(self):
         return self.step
