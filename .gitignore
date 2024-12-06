@@ -1,3 +1,5 @@
 logfile2024.txt
 ShipCase*.txt
 SilverQueen.txt
+.DS_Store
+__pycache__/

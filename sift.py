@@ -1,9 +1,6 @@
 from utils import *
 from nodes import *
 from step import *
-import numpy as np
-import copy
-import sys
 
 #Finds what the weight of either side should be once the sift operation is completed. Returns a pair of integers.
 def sifted_weights(ship: Node):
@@ -44,15 +41,3 @@ def check_sifted(ship: Node, l: int, r: int):
     if l == left and r == right:
         return True
     return False
-
-# with open(f"ShipCase5.txt") as f:
-#     import time
-#     start_time = time.time()
-#     res = parse_manifest(f.read())
-#     grids = to_grid(res)
-#     curr = Node(grids)
-#     left, right = sifted_weights(curr)
-#     end_time = time.time()
-#     print(left, right)
-#     time_spent = end_time - start_time
-#     print(time_spent, "seconds spent")

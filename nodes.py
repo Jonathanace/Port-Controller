@@ -1,8 +1,5 @@
-from states import Grid 
-from states import to_grid
-from utils import parse_manifest
-from utils import Item
 from step import Step
+
 class Node:
     step: Step
     movement: str
@@ -177,9 +174,3 @@ class Node:
         if self.previous_node == None:
             return 0
         return self.h
-    
-# with open(f"SilverQueen.txt") as f:
-#     res = parse_manifest(f.read())
-# shipSilverQueen  = to_grid(res)
-# startNode = Node(shipSilverQueen)
-# print(startNode.check_available([1,1]))

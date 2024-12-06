@@ -1,13 +1,10 @@
 from utils import Item
 from utils import parse_manifest
-from states import Grid
 from states import to_grid
 from nodes import Node
-from step import Step
 from sift import *
 import numpy as np
 import copy
-import sys
 
 #Checks if a ship can be balanced by looking through each combination of containers and seeing if any pair of sums is within 10% of each other.
 def can_balance(items: list["Item"]) -> bool:
@@ -42,7 +39,7 @@ def container_combinations(arr, data, start, end, index, r, total, sums):
         i += 1
     
 #Main balancing function. Outputs the final goal state.
-def balance(items: list["Item"]):
+def balance(items: list["Item"], heuristic=True):
     needs_sift = False
     movement_type = "Balance"
     if can_balance(items) == False:
@@ -90,10 +87,9 @@ def balance(items: list["Item"]):
                     if exists == False or len(explored) == 0:
                         temp_frontier.append(child_node)
             explored.append(curr_weight_arr)
-        frontier = []
-        for new_state in temp_frontier:
-            frontier.append(new_state)
-        frontier.sort(key = lambda s : (s.get_h() + s.previous_node.get_h()))
+        frontier = temp_frontier
+        if(heuristic == True):
+            frontier.sort(key = lambda s : (s.get_h() + s.previous_node.get_h()))
     return start, needs_sift
 
 #Creates a list of containers that can be moved starting from the center of the ship. Returns an array of tuples.
@@ -156,34 +152,40 @@ def swap_squares(ship: Node, first_obj: tuple[int, int], second_obj: tuple[int, 
     curr[second_obj[0]][second_obj[1]].position = new_pos2
     return curr
 
-def get_steps(manifest: str):
+def get_steps(manifest: str, heuristic):
     res = []
     items = parse_manifest(manifest)
-    curr, is_sifted = balance(items)
+    curr, is_sifted = balance(items, heuristic)
     while(curr != None):
         prev = curr.previous_node
         if(prev == None):
             break
-        res.append(curr.get_step())
+        res.insert(0, curr.get_step())
         curr = prev
-    res.reverse()
-    return res
     
-files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
-for file in files:
-    print("CURRENTLY PROCESSING:", file)
-    with open(file) as f:
-        import time
-        start_time = time.time()
-        arr = get_steps(f.read())
-        for square in arr:
-            print("Operation type is \'", square.movement_type, end=" \'; ")
-            print("Weight of Container:", square.weight, end=", ")
-            print("Start position:", square.start_pos, end=", ")
-            print("End position:", square.end_pos, end=", ")
-            print("Time estimated:", square.time_estimate, end=" ")
-            print("minutes")
-        end_time = time.time()
-        time_spent = end_time - start_time
-        print(time_spent, "seconds spent finding optimal solution")
-        print('\n')
+    return res
+
+
+
+# files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
+# h = input("Heuristic?(Y/N) ")
+# heuristic = True
+# if(h == "N"):
+#     heuristic = False
+# for file in files:
+#     print("CURRENTLY PROCESSING:", file)
+#     with open(file) as f:
+#         import time
+#         start_time = time.time()
+#         arr = get_steps(f.read(), heuristic)
+#         for square in arr:
+#             print("Operation type is \'", square.movement_type, end=" \'; ")
+#             print("Weight of Container:", square.weight, end=", ")
+#             print("Start position:", square.start_pos, end=", ")
+#             print("End position:", square.end_pos, end=", ")
+#             print("Time estimated:", square.time_estimate, end=" ")
+#             print("minutes")
+#         end_time = time.time()
+#         time_spent = end_time - start_time
+#         print(time_spent, "seconds spent finding optimal solution")
+#         print('\n')

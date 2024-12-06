@@ -1,4 +1,3 @@
-from utils import parse_manifest
 from utils import Item
 import numpy as np
 
