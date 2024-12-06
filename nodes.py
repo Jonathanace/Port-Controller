@@ -175,8 +175,8 @@ class Node:
         column = position[1] - 1
         last_row = position[0] - 1
         for i in range(last_row):
-            for item in self.items_to_unload:
-                if self.ship[i][column].name == column:
+            for item in self.unload_item:
+                if self.ship[i][column].name == item:
                     return 2 + last_row - i
         return 0 
     def calculate_h(self):
@@ -233,7 +233,17 @@ class Node:
                 h1 = self.check_unload_load()
                 position = self.get_position()
                 h2 = self.check_distance_to_portal(position)
+                h3 = self.check_unload_item()
                 self.h = h1 + h2 + self.previous_node.h
+            if self.movement == "Move_On_Top":
+                h1 = self.step.time_estimate
+                start_pos = self.step.start_pos
+                end_pos = self.step.end_pos
+                if start_pos[0] > end_pos[0]:
+                    h2 = -1
+                if start_pos[0] < end_pos[0]:
+                    h2 =2 
+                self.h = h1+ h2 + self.previous_node.h
     
     def get_step(self):
         return self.step
