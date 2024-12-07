@@ -21,7 +21,7 @@ if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 ### Setup Plan Folder
-PLAN_FOLDER = 'plan'
+PLAN_FOLDER = 'frontend/public/images'
 if not os.path.exists(PLAN_FOLDER):
     os.makedirs(PLAN_FOLDER)
 else:
@@ -76,6 +76,7 @@ def save_grid(grid, step_num):
     flipped_grid = np.flip(grid)
     plt.imshow(flipped_grid, cmap=cmap, vmin=0, vmax=4)
     plt.savefig(image_path)
+    return image_path
 
 
 @app.route('/upload', methods=['POST'])
@@ -148,12 +149,14 @@ def balance_manifest():
     steps = get_steps(manifest)
     grid = make_grid()
     
+    file_names = []
     for step_num, step in enumerate(steps):
         grid = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos)
-        save_grid(grid, step_num)
-        display_grid(grid)
+        image_path = save_grid(grid, step_num)
+        # display_grid(grid)
+        file_names.append(image_path)
 
-    return jsonify(), 200
+    return jsonify(file_names), 200
     
 if __name__ == '__main__':
     # balance_manifest()
