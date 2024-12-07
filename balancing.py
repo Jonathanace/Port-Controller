@@ -169,21 +169,22 @@ def get_steps(manifest: str):
     res.reverse()
     return res
     
-files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
-for file in files:
-    print("CURRENTLY PROCESSING:", file)
-    with open(file) as f:
-        import time
-        start_time = time.time()
-        arr = get_steps(f.read())
-        for square in arr:
-            print("Operation type is \'", square.movement_type, end=" \'; ")
-            print("Weight of Container:", square.weight, end=", ")
-            print("Start position:", square.start_pos, end=", ")
-            print("End position:", square.end_pos, end=", ")
-            print("Time estimated:", square.time_estimate, end=" ")
-            print("minutes")
-        end_time = time.time()
-        time_spent = end_time - start_time
-        print(time_spent, "seconds spent finding optimal solution")
-        print('\n')
+if __name__ == "__main__":
+    files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
+    for file in files:
+        print("CURRENTLY PROCESSING:", file)
+        with open(file) as f:
+            import time
+            start_time = time.time()
+            arr = get_steps(f.read())
+            for square in arr:
+                print("Operation type is \'", square.movement_type, end=" \'; ")
+                print("Weight of Container:", square.weight, end=", ")
+                print("Start position:", square.start_pos, end=", ")
+                print("End position:", square.end_pos, end=", ")
+                print("Time estimated:", square.time_estimate, end=" ")
+                print("minutes")
+            end_time = time.time()
+            time_spent = end_time - start_time
+            print(time_spent, "seconds spent finding optimal solution")
+            print('\n')
