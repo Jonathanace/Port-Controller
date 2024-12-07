@@ -36,6 +36,10 @@ def parse_manifest(manifest: str) -> list["Item"]:
 
     return items
 
+def get_crate_names(parsed_manifest):
+    for item in parsed_manifest:
+        if item['company'] != 'UNUSED' and item['company'] != 'NAN':
+            print(item['company'])
 
 if __name__ == "__main__":
     from pprint import pprint
@@ -43,6 +47,3 @@ if __name__ == "__main__":
     # i = 2
     # with open(f"Shipcase{i}.txt") as f:
     #     pprint(parse_manifest(f.read()))
-
-    with open(f"SilverQueen.txt") as f:
-        pprint(parse_manifest(f.read()))
