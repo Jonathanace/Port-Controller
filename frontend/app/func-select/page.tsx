@@ -244,7 +244,7 @@ export const ManifestDialogButton: React.FC<ManifestDialogButtonProps> = ({ oper
           {operation === 'Load/Unload' ? (
               <><CheckboxReactHookFormMultiple /></>
           ) : (
-            <Button onClick={() => BalanceManifest()}>Submit</Button>
+            <BalanceManifest />
           )}
           </DialogDescription>
         </DialogHeader>
@@ -266,10 +266,23 @@ export const ProcessManifest = (operation: string) => {
 }
 
 export const BalanceManifest = () => {
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  const handleBalanceManifest = () => {
+    setIsDisabled(true);
+
   fetch('http://localhost:5000/balance-manifest',
     {
       method: 'POST'
-    }
+    }).then(resopnse => {
+        setIsDisabled(false);
+        window.location.href = '/plan'
+    });
+  };
+  return (
+    <Button onClick={handleBalanceManifest} disabled={isDisabled}>
+      {isDisabled ? 'Processing manifest. Please wait.' : 'Submit Manifest'}
+    </Button>
   )
 }
 
