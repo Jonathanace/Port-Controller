@@ -244,7 +244,7 @@ export const ManifestDialogButton: React.FC<ManifestDialogButtonProps> = ({ oper
           {operation === 'Load/Unload' ? (
               <><CheckboxReactHookFormMultiple /></>
           ) : (
-            <Button onClick={() => BalanceManfiest()}>Submit</Button>
+            <Button onClick={() => BalanceManifest()}>Submit</Button>
           )}
           </DialogDescription>
         </DialogHeader>
@@ -265,7 +265,7 @@ export const ProcessManifest = (operation: string) => {
   )
 }
 
-export const BalanceManfiest = () => {
+export const BalanceManifest = () => {
   fetch('http://localhost:5000/balance-manifest',
     {
       method: 'POST'
