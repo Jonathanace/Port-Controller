@@ -23,30 +23,38 @@ export function PlanCarousel() {
   const [count, setCount] = React.useState(0)
   const [images, setImages] = useState<string[]>([]);
 
-
     useEffect(() => {
-      const tempImages: string[] = [];
-      (async () => {
+      const fetchImages = async () => {
+        const tempImages: string[] = [];
         for (let i=0; ;i++) {
           const imageUrl = `/images/${i}.png`
           try {
             const response = await fetch(imageUrl, { method: 'HEAD'});
-            tempImages.push(imageUrl)
+            if (response.ok) {
+              tempImages.push(imageUrl)
+            }
+            else {
+              break;
+            }
           } catch (error) {
             break;
           }
-          setImages(tempImages);
         }
-      })();
-    }, [])
+        
+        setCount(tempImages.length);
+        tempImages.push('static-card');
+        setImages(tempImages);
+        
+      };
+      fetchImages();
+    }, []);
 
   useEffect(() => {
     if (!api) {
-      return
+      return;
     }
     
-    setCount(api.scrollSnapList().length)
-    setCurrent(api.selectedScrollSnap() + 1)
+    setCurrent(api.selectedScrollSnap() + 1);
 
     api.on("select", () => {
       setCurrent(api.selectedScrollSnap() + 1)
@@ -61,8 +69,19 @@ export function PlanCarousel() {
             <CarouselItem key={index}>
               <Card>
                 <CardContent className="flex aspect-square items-center justify-center p-6">
-                  <img src={image} />
-                  <span className="text-4xl font-semibold">{index + 1}</span>
+                  {image === 'static-card' ? (
+                    <div>
+                      You have completed all steps! <br />
+                      Click <a href="/func-select" className="text-black-500 underline">here</a> to return.
+                    </div>
+
+                  ) : (
+                    <>
+                    <img src={image} />
+                    <span className="text-4xl font-semibold">{index + 1}</span>
+                    </>
+                  )}
+
                 </CardContent>
               </Card>
             </CarouselItem>
