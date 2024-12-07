@@ -7,12 +7,15 @@ from balancing import get_steps
 import json
 import logging
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
+
 import glob
 
 app = Flask(__name__)
 CORS(app)
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 ### Setup Manifest Upload Folder
 UPLOAD_FOLDER = 'uploads'
@@ -156,7 +159,7 @@ def balance_manifest():
         # display_grid(grid)
         file_names.append(image_path)
 
-    return jsonify(file_names), 200
+    return jsonify(), 200
     
 if __name__ == '__main__':
     # balance_manifest()
