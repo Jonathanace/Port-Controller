@@ -88,7 +88,7 @@ export function CheckboxReactHookFormMultiple() {
 
   useEffect(() => {
     const fetchItems = async () => {
-      const response = await fetch('http://localhost:5000/get_containers');
+      const response = await fetch('http://localhost:5000/get-containers');
       const containers = await response.json();
       setItems(containers);
     }
@@ -236,13 +236,15 @@ export const ManifestDialogButton: React.FC<ManifestDialogButtonProps> = ({ oper
         <DialogHeader>
           <DialogTitle>
             { operation === 'Balance' 
-              ? `Balance Operation Selected for ${shipName}`
-              : `Load/Unload Operation Selected for ${shipName}`
+              ? `Balance Operation Selected for ${shipName.replace(/\.txt$/, "")}`
+              : `Load/Unload Operation Selected for ${shipName.replace(/\.txt$/, "")}`
             }
           </DialogTitle>
           <DialogDescription>
-          {operation === 'Load/Unload' && (
+          {operation === 'Load/Unload' ? (
               <><CheckboxReactHookFormMultiple /></>
+          ) : (
+            <Button onClick={() => BalanceManfiest()}>Submit</Button>
           )}
           </DialogDescription>
         </DialogHeader>
@@ -259,6 +261,14 @@ export const ProcessManifest = (operation: string) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ parse_option: operation })
+    }
+  )
+}
+
+export const BalanceManfiest = () => {
+  fetch('http://localhost:5000/balance-manifest',
+    {
+      method: 'POST'
     }
   )
 }

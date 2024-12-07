@@ -79,12 +79,15 @@ def save_grid(grid, step_num):
 
 
 @app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+def upload_file(file_path=None):
+    if file_path is not None:
+        file = file_path.read()
+    else:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part'}), 400
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
     if file:
         try:
             os.remove(manifest_path)
@@ -137,19 +140,22 @@ def get_containers():
     app.logger.info(container_names)
     return jsonify(container_names), 200
 
-@app.route('/balance-manifest', methods=['GET'])
+@app.route('/balance-manifest', methods=['POST'])
 def balance_manifest():
+    app.logger.info('Balance manifest called')
     with open(manifest_path) as file:
         manifest = file.read()
     steps = get_steps(manifest)
     grid = make_grid()
-
+    
     for step_num, step in enumerate(steps):
         grid = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos)
         save_grid(grid, step_num)
         display_grid(grid)
+
+    return jsonify(), 200
     
 if __name__ == '__main__':
     # balance_manifest()
-
+    
     app.run(port=5000, debug=True)
