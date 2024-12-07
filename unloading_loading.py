@@ -92,10 +92,9 @@ def swap_items(index1, index2, ship):
 
 
 
-def remove_items_above(tallest_index, target_index, curr_node):
+def remove_items_above(tallest_index, target_index, curr_node, curr_move):
     curr_index = tallest_index
-    frontier_node = [curr_node]
-    frontier_indexes= [curr_index]
+    frontier = [curr_node]
     goal_reached = False
     while goal_reached == False: 
         if curr_index[0] ==  target_index[0]:
@@ -105,48 +104,46 @@ def remove_items_above(tallest_index, target_index, curr_node):
         for index in available_indexes:
             temp_ship = copy.deepcopy(curr_node.ship)
             temp_ship = swap_items(curr_index,index,temp_ship)
-            child_node = Node(temp_ship, previous_node=curr_node, crane_pos= "Ship", movement= "Move_On_Top")
-            frontier_node.append(child_node)
-            child_index = [curr_index[0]-1, curr_index[1]]
-            frontier_indexes.append(child_index)
-        frontier_node.pop(0)
-        frontier_indexes.pop(0)
-        curr_node = frontier_node[0]
-        curr_index = frontier_indexes[0]
+            child_node = Node(temp_ship, previous_node=curr_node, crane_pos= "Ship", movement= "Move_On_Top", moves= curr_move , index_on_top= [curr_index[0]-1, curr_index[1]])
+            frontier.append(child_node)
+        frontier.pop(0)
+        frontier.sort(key = lambda s: (s.get_h()))
+        curr_node = frontier[0]
+        curr_index = frontier[0].index_on_top
 
 
-def unload_item(item,curr_node):
+def unload_item(item,curr_node, curr_move):
     child_nodes = []
     index_list = get_item_index(item, curr_node.ship)
     for index in index_list:
         if curr_node.check_above((index[0],index[1])):
             temp_ship = copy.deepcopy(curr_node.ship)
             temp_ship[index[0],index[1]].set_empty()
-            child_node = Node(temp_ship, previous_node=curr_node, crane_pos = "Dock", movement= "Unload")
+            child_node = Node(temp_ship, previous_node=curr_node, crane_pos = "Dock", movement= "Unload", moves = curr_move)
             child_nodes.append(child_node)
         else:
             tallest_index = find_tallest_index(index, curr_node.ship)
-            no_item_above_node = remove_items_above(tallest_index, index, curr_node)
+            no_item_above_node = remove_items_above(tallest_index, index, curr_node, curr_move)
             temp_ship = copy.deepcopy(no_item_above_node.ship)
             temp_ship[index[0],index[1]].set_empty()
-            child_node = Node(temp_ship, previous_node=no_item_above_node, crane_pos = "Dock", movement = "Unload")
+            child_node = Node(temp_ship, previous_node=no_item_above_node, crane_pos = "Ship", movement = "Unload", moves= curr_move)
             child_nodes.append(child_node)
     return child_nodes
 
-def load_item(item,curr_node):
+def load_item(item,curr_node, curr_move):
     available_indexes = curr_node.check_aviable_load()
     weight = 851
     child_nodes= []
-    count = 0
+    # count = 0
     for index in available_indexes:
-         count += 1
+        #  count += 1
          temp_ship = copy.deepcopy(curr_node.ship)
          temp_ship[index[0],index[1]].set_container(weight, item)
-         child_node = Node(temp_ship, previous_node=curr_node, crane_pos= "Ship", movement= "Load")
+         child_node = Node(temp_ship, previous_node=curr_node, crane_pos= "Ship", movement= "Load", moves = curr_move)
          child_nodes.append(child_node)
          # remove the count variable when actually testing it
-         if count == 1:
-             break
+        #  if count == 1:
+        #      break
     return child_nodes
 
 
@@ -173,8 +170,13 @@ def check_two_ships(ship1, ship2):
             if ship1[i][j].name != ship2[i][j].name:
                 return False
     return True
+def print_out_ship(ship):
+    ship = ship[::-1]
+    for row in ship:
+        print(' '.join(obj.name for obj in row))
+print_out_ship(case1)
 # print(check_two_ships(child_node_case1[0].ship,Case1.ship))
-def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None):
+def unload_load(initial_node, h, unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None):
     goal_state = calculate_goal_state(initial_node.ship, unload, load)
     items_moved = []
     unload_items = []
@@ -188,13 +190,12 @@ def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[t
             items_moved.append(item[0])
             load_items.append(item[0])     
     goal_reached = False
-    frontier_node = [initial_node]
-    frontier_move = [[unload,load]]
+    frontier = [initial_node]
     explored = []
     curr_node = initial_node
     curr_unload = unload
     curr_load = load
-    count = 0
+    # count = 0
     while goal_reached == False:
         curr_state = get_state(items_moved, curr_node.ship)
         # use these print statements if it leeks like a inifinte loop but it just took a real long time
@@ -204,6 +205,10 @@ def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[t
         # print(curr_state)
         # print("goal_state")
         # print(goal_state)
+        print("--------------------------------")
+        print("lenth of frontier")
+        print(len(frontier))
+        print_out_ship(curr_node.ship)
         if check_goal_state(curr_state, goal_state):
             return curr_node
         temp_frontier = []
@@ -212,54 +217,71 @@ def unload_load(initial_node, unload : list[tuple[str,int]] = None,load : list[t
             for i in range(len(curr_unload)):
                 if curr_unload[i][1] > 0:
                     temp_unload = copy.deepcopy(curr_unload)
-                    child_nodes = unload_item(curr_unload[i][0],curr_node)
                     temp_unload[i] = change_amount(temp_unload[i], "U")
+                    child_nodes = unload_item(curr_unload[i][0],curr_node, [temp_unload,curr_load])
                     for child_node in child_nodes:
                         temp_frontier.append(child_node)
                         temp_move.append([temp_unload,curr_load])
-
                 else: 
                     continue
         if curr_load is not None:
             for i in range(len(curr_load)):
                 if curr_load[i][1] > 0:
                     temp_load =  copy.deepcopy(curr_load)
-                    child_nodes = load_item(curr_load[i][0],curr_node)
                     temp_load[i] = change_amount(temp_load[i], "L")
+                    child_nodes = load_item(curr_load[i][0],curr_node , [curr_unload,temp_load])
                     for child_node in child_nodes:
                         temp_frontier.append(child_node)
                         temp_move.append([curr_unload,temp_load])
                 else: 
                     continue
+        print("length of temp frontier")
+        print(len(temp_frontier))
+        print("lenth of frontier")
+        print(len(frontier))
         explored.append(curr_node)
-        for explored_node in explored:
-            for i in range(len(temp_frontier)):
-                if check_two_ships(explored_node.ship,temp_frontier[i].ship) == False:
-                    frontier_node.append(temp_frontier[i])
-                    frontier_move.append(temp_move[i])
+        remove_index = []
+        for i in range(len(temp_frontier)):
+            for explored_node in explored:
+                if check_two_ships(explored_node.ship,temp_frontier[i].ship) == True:
+                    remove_index.append(i)
+                    break
+                    # frontier_move.append(temp_move[i])
+        if len(remove_index) != 0:
+            remove_index.sort(reverse=True)
+            for index in remove_index:
+                temp_frontier.pop(index)
+        for node in temp_frontier:
+                frontier.append(node)
+        frontier.pop(0)
+        if h == True:
+            frontier.sort(key = lambda s: (s.get_h()))
                     
-        frontier_node.pop(0)
-        frontier_move.pop(0)
-        curr_node = frontier_node[0]
-        curr_unload = frontier_move[0][0]
-        curr_load = frontier_move[0][1]
+        # frontier_move.pop(0)
+        curr_node = frontier[0]
+        curr_unload = frontier[0].moves[0]
+        curr_load = frontier[0].moves[1]
+print("Start Case1")
 unload = [("Cat", 1)]
-final_node_case_1 = unload_load(Case1,unload)
+final_node_case_1 = unload_load(Case1, False, unload)
 unload_case2 = None
 load_case2 = [("Bat",1)]
-final_node_case_2 = unload_load(Case2, load= load_case2)
+print("Start Case2")
+final_node_case_2 = unload_load(Case2,False, load= load_case2)
+print("start case3")
 unload_case3 = [("Cow",1)]
 load_case3 = [("Bat",1), ("Rat",1)]
-final_node_case_3 = unload_load(Case3, unload_case3, load_case3)
+final_node_case_3 = unload_load(Case3, True, unload_case3, load_case3)
+print("Start Case 4")
 unload_case4 = [("Doe",1)]
 load_case4 = [("Nat",1)]
-final_node_case_4 = unload_load(Case4, unload_case4, load_case4)
+final_node_case_4 = unload_load(Case4, False,unload_case4, load_case4)
 unload_case5 = [("Hen",1), ("Pig",1)]
 load_case5 = [("Nat",1),("Rat",1)]
-final_node_case_5 = unload_load(Case5, unload_case5, load_case5)
+final_node_case_5 = unload_load(Case5, True, unload_case5, load_case5)
 unload_case6 = [("Batons",1), ("Catfish",1)]
 load_case6 = [("Nat",1)]
-final_node_case_6 = unload_load(Case6, unload_case6, load_case6)
+final_node_case_6 = unload_load(Case6, True, unload_case6, load_case6)
 
 def get_all_the_nodes(goal_node):
     curr_node = goal_node
@@ -271,10 +293,10 @@ def get_all_the_nodes(goal_node):
     return nodes
 nodes = get_all_the_nodes(final_node_case_1)
 nodes2 = get_all_the_nodes(final_node_case_2)
-nodes3 = get_all_the_nodes(final_node_case_3)
-nodes4 = get_all_the_nodes(final_node_case_4)
-nodes5 = get_all_the_nodes(final_node_case_5)
-nodes6 = get_all_the_nodes(final_node_case_6)
+# nodes3 = get_all_the_nodes(final_node_case_3)
+# nodes4 = get_all_the_nodes(final_node_case_4)
+# nodes5 = get_all_the_nodes(final_node_case_5)
+# nodes6 = get_all_the_nodes(final_node_case_6)
 def output_steps(node_list):
     for i in range(1, len(node_list)):
         print(f"Operation type is {node_list[i].step.movement_type}; Start position {node_list[i].step.start_pos}, End position {node_list[i].step.end_pos}, Time estimated:{node_list[i].step.time_estimate}")
@@ -283,13 +305,13 @@ output_steps(nodes)
 print("case2")
 output_steps(nodes2)
 print("case3")
-output_steps(nodes3)
-print("case4")
-output_steps(nodes4)
-print("case5")
-output_steps(nodes5)
-print('case6')
-output_steps(nodes6)
+# output_steps(nodes3)
+# print("case4")
+# output_steps(nodes4)
+# print("case5")
+# output_steps(nodes5)
+# print('case6')
+# output_steps(nodes6)
 # def get_position_moved(ship1, ship2):
 #     indexes = []
 #     for i in range(len(ship1)):

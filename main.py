@@ -1,1 +1,2 @@
 # #ijsioagoiadoijio
+print(len(None))

@@ -4,7 +4,7 @@ from utils import parse_manifest
 from utils import Item
 from step import Step
 class Node:
-    def __init__(self, ship,movement = None, holding_area = None, trucks = False, previous_node = None, crane_pos = "Start", moves = None):
+    def __init__(self, ship,movement = None, holding_area = None, trucks = False, previous_node = None, crane_pos = "Start", moves = None, index_on_top = None):
         self.ship = ship
         self.holding_area = holding_area
         self.trucks = trucks
@@ -13,18 +13,30 @@ class Node:
         self.movement = movement
         self.crane_pos = crane_pos
         self.moves = moves
+        self.index_on_top = index_on_top
+        self.h = 0
+        if self.moves is not None:
+            self.unload_item = self.get_unload_item()
         if previous_node != None:
             self.step = self.create_step()
             self.calculate_h()
-        if self.moves is not None:
-            self.unload_item = self.get_items()
+            self.calculate_h()
+
     
-    def get_items(self):
+    
+    def get_unload_item(self):
         unload_move = self.moves[0]
         items = []
-        for unload in unload_move:
-            items.append(unload[0])
-        return items
+        if unload_move is None:
+            self.unload_item = None
+        else:
+            for unload in unload_move:
+                if unload[1] > 0:
+                    items.append(unload[0])
+            if len(items) == 0:
+                self.unload_item = None
+            else:
+                self.unload_item = items
     # checks if there is anything above the container, will be used in the move function
     # index [x,y]
     def check_above(self,index: tuple[int,int]) -> bool:
@@ -62,6 +74,8 @@ class Node:
                 if n + 1 < 8:
                     res = tuple([n + 1, col])
                     return res
+                else:
+                    return
             if n == 0:
                 res = tuple([n, col])
                 return res
@@ -84,7 +98,7 @@ class Node:
         if self.movement == 'Load' or self.movement == 'Unload':
             time = 0
             position = self.get_position()
-            portal = [1,10]
+            portal = [9,1]
             x_distance = abs(position[0] - portal[0])
             y_distance = abs(position[1] - portal[1])
             time = 2 + x_distance + y_distance
@@ -158,20 +172,26 @@ class Node:
             return temp
     def check_unload_load(self):
         if self.movement == "Unload" and self.previous_node.movement == "Load":
-            count = -2
+            return -2
         if self.movement == "Load" and self.previous_node.movement == "Unload":
-            count = -2
+            return -2
+        if self.movement == "Unload" and self.previous_node.movement is None:
+            if self.moves[1] is not None:
+                return  len(self.moves[0]) - len(self.moves[1])
+            else:
+                return  0
+        if self.movement == "Load" and self.previous_node.movement is None:
+            if self.moves[0] is not None:
+                return len(self.moves[1]) - len(self.moves[0])
+            else:
+                return 0
         else:
             count = 0
         return count
-    def check_distance_to_portal(self, position):
-        man_distance = 0
-        portal = [1,10]
-        x_distance = abs(position[0] - portal[0])
-        y_distance =abs( position[1] - portal[1]) 
-        man_distance = x_distance + y_distance
-        return man_distance
     def check_unload_item(self , position):
+        self.get_unload_item()
+        if self.unload_item is None:
+            return 0
         column = position[1] - 1
         last_row = position[0] - 1
         for i in range(last_row):
@@ -224,26 +244,25 @@ class Node:
             h3 = max(left, right) / container_columns
             h_temp = h1 + h2 + h3
             self.h = h_temp / weight_below
-            if self.movement == "Unload":
-                h1 = self.check_unload_load()
-                position = self.get_position()
-                h2 = self.check_distance_to_portal(position)
-                self.h = h1 + h2 + self.previous_node.h
-            if self.movement == "Load":
-                h1 = self.check_unload_load()
-                position = self.get_position()
-                h2 = self.check_distance_to_portal(position)
-                h3 = self.check_unload_item()
-                self.h = h1 + h2 + self.previous_node.h
-            if self.movement == "Move_On_Top":
-                h1 = self.step.time_estimate
-                start_pos = self.step.start_pos
-                end_pos = self.step.end_pos
-                if start_pos[0] > end_pos[0]:
-                    h2 = -1
-                if start_pos[0] < end_pos[0]:
-                    h2 =2 
-                self.h = h1+ h2 + self.previous_node.h
+        if self.movement == "Unload":
+            h1 = self.check_unload_load()
+            h2 = self.step.time_estimate
+            self.h = h1 + h2 + self.previous_node.h
+        if self.movement == "Load":
+            h1 = self.check_unload_load()
+            h2 = self.step.time_estimate
+            h3 = self.check_unload_item(self.step.end_pos)
+            self.h = h1 + h2 + self.previous_node.h
+        if self.movement == "Move_On_Top":
+            h1 = self.step.time_estimate
+            start_pos = self.step.start_pos
+            end_pos = self.step.end_pos
+            if start_pos[1] > end_pos[1]:
+                h2 = -1
+            if start_pos[1] < end_pos[1]:
+                h2 = 0
+            h3 = self.check_unload_item(self.step.end_pos)
+            self.h = h1+ h2 + h3 + self.previous_node.h
     
     def get_step(self):
         return self.step
@@ -256,7 +275,8 @@ class Node:
     def check_aviable_load(self):
         available_moves = []
         for j in range(len(self.ship[0])):
-            available_moves.append(self.check_column(j))
+            if self.check_column(j) is not None:
+                available_moves.append(self.check_column(j))
         return available_moves
 
                        
