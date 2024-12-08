@@ -174,7 +174,7 @@ def print_out_ship(ship):
     ship = ship[::-1]
     for row in ship:
         print(' '.join(obj.name for obj in row))
-print_out_ship(case1)
+# print_out_ship(case1)
 # print(check_two_ships(child_node_case1[0].ship,Case1.ship))
 def unload_load(initial_node, h, unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None):
     goal_state = calculate_goal_state(initial_node.ship, unload, load)
@@ -205,10 +205,10 @@ def unload_load(initial_node, h, unload : list[tuple[str,int]] = None,load : lis
         # print(curr_state)
         # print("goal_state")
         # print(goal_state)
-        print("--------------------------------")
-        print("lenth of frontier")
-        print(len(frontier))
-        print_out_ship(curr_node.ship)
+        # print("--------------------------------")
+        # print("lenth of frontier")
+        # print(len(frontier))
+        # print_out_ship(curr_node.ship)
         if check_goal_state(curr_state, goal_state):
             return curr_node
         temp_frontier = []
@@ -235,10 +235,10 @@ def unload_load(initial_node, h, unload : list[tuple[str,int]] = None,load : lis
                         temp_move.append([curr_unload,temp_load])
                 else: 
                     continue
-        print("length of temp frontier")
-        print(len(temp_frontier))
-        print("lenth of frontier")
-        print(len(frontier))
+        # print("length of temp frontier")
+        # print(len(temp_frontier))
+        # print("lenth of frontier")
+        # print(len(frontier))
         explored.append(curr_node)
         remove_index = []
         for i in range(len(temp_frontier)):
@@ -261,27 +261,27 @@ def unload_load(initial_node, h, unload : list[tuple[str,int]] = None,load : lis
         curr_node = frontier[0]
         curr_unload = frontier[0].moves[0]
         curr_load = frontier[0].moves[1]
-print("Start Case1")
-unload = [("Cat", 1)]
-final_node_case_1 = unload_load(Case1, False, unload)
-unload_case2 = None
-load_case2 = [("Bat",1)]
-print("Start Case2")
-final_node_case_2 = unload_load(Case2,False, load= load_case2)
-print("start case3")
-unload_case3 = [("Cow",1)]
-load_case3 = [("Bat",1), ("Rat",1)]
-final_node_case_3 = unload_load(Case3, True, unload_case3, load_case3)
-print("Start Case 4")
-unload_case4 = [("Doe",1)]
-load_case4 = [("Nat",1)]
-final_node_case_4 = unload_load(Case4, False,unload_case4, load_case4)
-unload_case5 = [("Hen",1), ("Pig",1)]
-load_case5 = [("Nat",1),("Rat",1)]
-final_node_case_5 = unload_load(Case5, True, unload_case5, load_case5)
-unload_case6 = [("Batons",1), ("Catfish",1)]
-load_case6 = [("Nat",1)]
-final_node_case_6 = unload_load(Case6, True, unload_case6, load_case6)
+# print("Start Case1")
+# unload = [("Cat", 1)]
+# final_node_case_1 = unload_load(Case1, False, unload)
+# unload_case2 = None
+# load_case2 = [("Bat",1)]
+# print("Start Case2")
+# final_node_case_2 = unload_load(Case2,False, load= load_case2)
+# print("start case3")
+# unload_case3 = [("Cow",1)]
+# load_case3 = [("Bat",1), ("Rat",1)]
+# final_node_case_3 = unload_load(Case3, False, unload_case3, load_case3)
+# print("Start Case 4")
+# unload_case4 = [("Doe",1)]
+# load_case4 = [("Nat",1)]
+# final_node_case_4 = unload_load(Case4, False,unload_case4, load_case4)
+# unload_case5 = [("Hen",1), ("Pig",1)]
+# load_case5 = [("Nat",1),("Rat",1)]
+# final_node_case_5 = unload_load(Case5, False, unload_case5, load_case5)
+# unload_case6 = [("Batons",1), ("Catfish",1)]
+# load_case6 = [("Nat",1)]
+# final_node_case_6 = unload_load(Case6, False, unload_case6, load_case6)
 
 def get_all_the_nodes(goal_node):
     curr_node = goal_node
@@ -291,8 +291,8 @@ def get_all_the_nodes(goal_node):
         curr_node = curr_node.previous_node
     nodes.reverse()
     return nodes
-nodes = get_all_the_nodes(final_node_case_1)
-nodes2 = get_all_the_nodes(final_node_case_2)
+# nodes = get_all_the_nodes(final_node_case_1)
+# nodes2 = get_all_the_nodes(final_node_case_2)
 # nodes3 = get_all_the_nodes(final_node_case_3)
 # nodes4 = get_all_the_nodes(final_node_case_4)
 # nodes5 = get_all_the_nodes(final_node_case_5)
@@ -300,11 +300,11 @@ nodes2 = get_all_the_nodes(final_node_case_2)
 def output_steps(node_list):
     for i in range(1, len(node_list)):
         print(f"Operation type is {node_list[i].step.movement_type}; Start position {node_list[i].step.start_pos}, End position {node_list[i].step.end_pos}, Time estimated:{node_list[i].step.time_estimate}")
-print("case1")
-output_steps(nodes)
-print("case2")
-output_steps(nodes2)
-print("case3")
+# print("case1")
+# output_steps(nodes)
+# print("case2")
+# output_steps(nodes2)
+# print("case3")
 # output_steps(nodes3)
 # print("case4")
 # output_steps(nodes4)
@@ -312,6 +312,32 @@ print("case3")
 # output_steps(nodes5)
 # print('case6')
 # output_steps(nodes6)
+
+def get_steps(manifest, unload, load , h):
+    res = parse_manifest(manifest)
+    start_ship  = to_grid(res) 
+    Start_Node = Node(start_ship)
+    final_node = unload_load(Start_Node, h ,unload, load)
+    node_list = get_all_the_nodes(final_node)
+    output_steps(node_list)
+
+
+files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
+unload_cases = [[("Cat", 1)], None,  [("Cow",1)], [("Doe",1)] ,  [("Hen",1), ("Pig",1)], [("Batons",1), ("Catfish",1)] ]
+load_cases = [None ,  [("Bat",1)],  [("Bat",1), ("Rat",1)], [("Nat",1)] , [("Nat",1),("Rat",1)] , [("Nat",1)]] 
+for i in range(len(files)):
+    print("CURRENTLY PROCESSING:", files[i])
+    with open(files[i]) as f:
+        import time
+        start_time = time.time()
+        get_steps(f.read(), unload_cases[i], load_cases[i],False)
+        end_time = time.time()
+        time_spent = end_time - start_time
+        print(time_spent, "seconds spent")
+        print('\n')
+    
+
+
 # def get_position_moved(ship1, ship2):
 #     indexes = []
 #     for i in range(len(ship1)):
