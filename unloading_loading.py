@@ -205,10 +205,10 @@ def unload_load(initial_node, h, unload : list[tuple[str,int]] = None,load : lis
         # print(curr_state)
         # print("goal_state")
         # print(goal_state)
-        # print("--------------------------------")
+        print("--------------------------------")
         # print("lenth of frontier")
         # print(len(frontier))
-        # print_out_ship(curr_node.ship)
+        print_out_ship(curr_node.ship)
         if check_goal_state(curr_state, goal_state):
             return curr_node
         temp_frontier = []
@@ -269,9 +269,9 @@ def unload_load(initial_node, h, unload : list[tuple[str,int]] = None,load : lis
 # print("Start Case2")
 # final_node_case_2 = unload_load(Case2,False, load= load_case2)
 # print("start case3")
-# unload_case3 = [("Cow",1)]
-# load_case3 = [("Bat",1), ("Rat",1)]
-# final_node_case_3 = unload_load(Case3, False, unload_case3, load_case3)
+unload_case3 = [("Cow",1)]
+load_case3 = [("Bat",1), ("Rat",1)]
+final_node_case_3 = unload_load(Case3, True, unload_case3, load_case3)
 # print("Start Case 4")
 # unload_case4 = [("Doe",1)]
 # load_case4 = [("Nat",1)]
@@ -322,19 +322,31 @@ def get_steps(manifest, unload, load , h):
     output_steps(node_list)
 
 
-files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
-unload_cases = [[("Cat", 1)], None,  [("Cow",1)], [("Doe",1)] ,  [("Hen",1), ("Pig",1)], [("Batons",1), ("Catfish",1)] ]
-load_cases = [None ,  [("Bat",1)],  [("Bat",1), ("Rat",1)], [("Nat",1)] , [("Nat",1),("Rat",1)] , [("Nat",1)]] 
-for i in range(len(files)):
-    print("CURRENTLY PROCESSING:", files[i])
-    with open(files[i]) as f:
-        import time
-        start_time = time.time()
-        get_steps(f.read(), unload_cases[i], load_cases[i],False)
-        end_time = time.time()
-        time_spent = end_time - start_time
-        print(time_spent, "seconds spent")
-        print('\n')
+# files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
+# unload_cases = [[("Cat", 1)], None,  [("Cow",1)], [("Doe",1)] ,  [("Hen",1), ("Pig",1)], [("Batons",1), ("Catfish",1)] ]
+# load_cases = [None ,  [("Bat",1)],  [("Bat",1), ("Rat",1)], [("Nat",1)] , [("Nat",1),("Rat",1)] , [("Nat",1)]] 
+# for i in range(len(files)):
+#     print("CURRENTLY PROCESSING:", files[i])
+#     with open(files[i]) as f:
+#         import time
+#         print("no huestic")
+#         start_time = time.time()
+#         get_steps(f.read(), unload_cases[i], load_cases[i],False)
+#         end_time = time.time()
+#         time_spent = end_time - start_time
+#         print(time_spent, "seconds spent")
+#         print('\n')
+# for i in range(len(files)):
+#     print("CURRENTLY PROCESSING:", files[i])
+#     with open(files[i]) as f:
+#         import time
+#         print("huestic")
+#         start_time = time.time()
+#         get_steps(f.read(), unload_cases[i], load_cases[i],True)
+#         end_time = time.time()
+#         time_spent = end_time - start_time
+#         print(time_spent, "seconds spent")
+#         print('\n')
     
 
 
