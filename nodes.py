@@ -186,7 +186,7 @@ class Node:
             else:
                 return 0
         else:
-            count = 0
+            count = 4
         return count
     def check_unload_item(self , position):
         self.get_unload_item()
