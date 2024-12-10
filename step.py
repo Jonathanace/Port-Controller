@@ -1,4 +1,3 @@
-
 class Step:
     start_pos: tuple[int, int]
     end_pos: tuple[int, int]

@@ -11,6 +11,7 @@ class Node:
         self.previous_node = previous_node
         self.child_nodes = []
         self.movement = movement
+
         self.crane_pos = crane_pos
         self.moves = moves
         self.index_on_top = index_on_top
@@ -37,6 +38,7 @@ class Node:
                 self.unload_item = None
             else:
                 self.unload_item = items
+
     # checks if there is anything above the container, will be used in the move function
     # index [x,y]
     def check_above(self,index: tuple[int,int]) -> bool:
@@ -82,6 +84,7 @@ class Node:
             n -= 1
         res = tuple([n, col])
         return res
+
     def check_aviable_load(self):
         available_moves = []
         for j in range(len(self.ship[0])):
@@ -156,6 +159,7 @@ class Node:
             weight = temp_grid.weight
             temp = Step(start_pos, end_pos, time_estimation, movement_type, weight)
             return temp
+
         if self.movement == "Load":
             time_estimation, position = self.time_estimate()
             start_pos = "Dock"
@@ -263,6 +267,7 @@ class Node:
                 h2 = 0
             h3 = self.check_unload_item(self.step.end_pos)
             self.h = h1+ h2 + h3 + self.previous_node.h
+
     
     def get_step(self):
         return self.step
@@ -271,10 +276,10 @@ class Node:
         if self.previous_node == None:
             return 0
         return self.h
-
     def check_aviable_load(self):
         available_moves = []
         for j in range(len(self.ship[0])):
             if self.check_column(j) is not None:
                 available_moves.append(self.check_column(j))
         return available_moves
+
