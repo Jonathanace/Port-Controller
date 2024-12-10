@@ -8,37 +8,7 @@ import numpy as np
 import copy
 import sys
 
-
-with open(f"ShipCase1.txt") as f:
-    res1 = parse_manifest(f.read())
-with open(f"ShipCase2.txt") as f:
-    res2 = parse_manifest(f.read())
-with open(f"ShipCase3.txt") as f:
-    res3 = parse_manifest(f.read())
-with open(f"ShipCase4.txt") as f:
-    res4 = parse_manifest(f.read())
-with open(f"ShipCase5.txt") as f:
-    res5 = parse_manifest(f.read())
-with open(f"SilverQueen.txt") as f:
-    res6 = parse_manifest(f.read())
-
-
-case1  = to_grid(res1) 
-Case1 = Node(case1)
-case2  = to_grid(res2) 
-Case2 = Node(case2)
-case3 = to_grid(res3) 
-Case3 = Node(case3)
-case4 = to_grid(res4)
-Case4 = Node(case4)
-case5 = to_grid(res5)
-Case5 = Node(case5)
-case6 = to_grid(res6)
-Case6 = Node(case6)
-
-
-
-
+# find the amount of each item
 def find_item_amount(item : str, ship):
     count = 0 
     for i in range(len(ship)):
@@ -46,10 +16,10 @@ def find_item_amount(item : str, ship):
             if ship[i][j].name == item:
                 count += 1
     return count
-
+# calcuates the goal state
 def calculate_goal_state(ship, unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None) -> list[tuple[str,int]]:
     goal_state = []
-    #change 1 to int, change cargo to item
+    #subtracts one from current state if unload, adds one if load
     if unload is not None:
         for item in unload:
             final_cargo = (item[0], find_item_amount(item[0], ship) -item[1])
@@ -61,6 +31,7 @@ def calculate_goal_state(ship, unload : list[tuple[str,int]] = None,load : list[
 
     return goal_state
 
+# get the current state
 def get_state(items_moved : list[str] , ship):
     state = []
     for item in items_moved:
@@ -68,7 +39,7 @@ def get_state(items_moved : list[str] , ship):
         cargo = (item, item_count)
         state.append(cargo)
     return state
-
+# get each item index
 def get_item_index(item,ship):
     index_list = []
     for i in range(len(ship)):
@@ -77,6 +48,7 @@ def get_item_index(item,ship):
                     index_list.append([i,j])
     return index_list
 
+# finds the talles object on top of an item
 def find_tallest_index(index,ship):
     tallest_index = [0,0]
     for i in range(len(ship)-1, index[0], -1):
@@ -84,6 +56,7 @@ def find_tallest_index(index,ship):
             tallest_index = [i,index[1]]     
     return tallest_index
 
+# swaps to items
 def swap_items(index1, index2, ship):
     temp = ship[index1[0],index1[1]]
     ship[index2[0],index2[1]].set_container(temp.weight,temp.name)
@@ -91,7 +64,7 @@ def swap_items(index1, index2, ship):
     return ship
 
 
-
+# removes the items above already gets the most opitimal way
 def remove_items_above(tallest_index, target_index, curr_node, curr_move):
     curr_index = tallest_index
     frontier = [curr_node]
@@ -111,7 +84,7 @@ def remove_items_above(tallest_index, target_index, curr_node, curr_move):
         curr_node = frontier[0]
         curr_index = frontier[0].index_on_top
 
-
+# unloads the item 2 cases
 def unload_item(item,curr_node, curr_move):
     child_nodes = []
     index_list = get_item_index(item, curr_node.ship)
@@ -129,7 +102,7 @@ def unload_item(item,curr_node, curr_move):
             child_node = Node(temp_ship, previous_node=no_item_above_node, crane_pos = "Ship", movement = "Unload", moves= curr_move)
             child_nodes.append(child_node)
     return child_nodes
-
+#loads item one case
 def load_item(item,curr_node, curr_move):
     available_indexes = curr_node.check_aviable_load()
     weight = 851
@@ -174,8 +147,7 @@ def print_out_ship(ship):
     ship = ship[::-1]
     for row in ship:
         print(' '.join(obj.name for obj in row))
-# print_out_ship(case1)
-# print(check_two_ships(child_node_case1[0].ship,Case1.ship))
+# unload and load main search algorithm
 def unload_load(initial_node, h, unload : list[tuple[str,int]] = None,load : list[tuple[str,int]] = None):
     goal_state = calculate_goal_state(initial_node.ship, unload, load)
     items_moved = []
@@ -195,26 +167,8 @@ def unload_load(initial_node, h, unload : list[tuple[str,int]] = None,load : lis
     curr_node = initial_node
     curr_unload = unload
     curr_load = load
-    # count = 0
     while goal_reached == False:
         curr_state = get_state(items_moved, curr_node.ship)
-        # use these print statements if it leeks like a inifinte loop but it just took a real long time
-        # print(f"Node {count}")
-        # count = count + 1
-        # print("curr_state")
-        # print(curr_state)
-        # print("goal_state")
-        # print(goal_state)
-        # print("--------------------------------")
-        # # print("lenth of frontier")
-        # # # print(len(frontier))
-        # # print_out_ship(curr_node.ship)
-        # print("Huerstic")
-        # print(curr_node.h)
-        # print("load")
-        # print(curr_load)
-        # print("unload")
-        # print(curr_unload)
         if check_goal_state(curr_state, goal_state):
             return curr_node
         temp_frontier = []
@@ -241,10 +195,6 @@ def unload_load(initial_node, h, unload : list[tuple[str,int]] = None,load : lis
                         temp_move.append([curr_unload,temp_load])
                 else: 
                     continue
-        # print("length of temp frontier")
-        # print(len(temp_frontier))
-        # print("lenth of frontier")
-        # print(len(frontier))
         explored.append(curr_node)
         remove_index = []
         for i in range(len(temp_frontier)):
@@ -252,7 +202,6 @@ def unload_load(initial_node, h, unload : list[tuple[str,int]] = None,load : lis
                 if check_two_ships(explored_node.ship,temp_frontier[i].ship) == True:
                     remove_index.append(i)
                     break
-                    # frontier_move.append(temp_move[i])
         if len(remove_index) != 0:
             remove_index.sort(reverse=True)
             for index in remove_index:
@@ -262,33 +211,10 @@ def unload_load(initial_node, h, unload : list[tuple[str,int]] = None,load : lis
         frontier.pop(0)
         if h == True:
             frontier.sort(key = lambda s: (s.get_h()))
-                    
-        # frontier_move.pop(0)
         curr_node = frontier[0]
         curr_unload = frontier[0].moves[0]
         curr_load = frontier[0].moves[1]
-# print("Start Case1")
-# unload = [("Cat", 1)]
-# final_node_case_1 = unload_load(Case1, False, unload)
-# unload_case2 = None
-# load_case2 = [("Bat",1)]
-# print("Start Case2")
-# final_node_case_2 = unload_load(Case2,False, load= load_case2)
-# print("start case3")
-# unload_case3 = [("Cow",1)]
-# load_case3 = [("Bat",1), ("Rat",1)]
-# final_node_case_3 = unload_load(Case3, True, unload_case3, load_case3)
-# print("Start Case 4")
-# unload_case4 = [("Doe",1)]
-# load_case4 = [("Nat",1)]
-# final_node_case_4 = unload_load(Case4, False,unload_case4, load_case4)
-# unload_case5 = [("Hen",1), ("Pig",1)]
-# load_case5 = [("Nat",1),("Rat",1)]
-# final_node_case_5 = unload_load(Case5, False, unload_case5, load_case5)
-# unload_case6 = [("Batons",1), ("Catfish",1)]
-# load_case6 = [("Nat",1)]
-# final_node_case_6 = unload_load(Case6, False, unload_case6, load_case6)
-
+# gets all the nodes
 def get_all_the_nodes(goal_node):
     curr_node = goal_node
     nodes = []
@@ -297,27 +223,12 @@ def get_all_the_nodes(goal_node):
         curr_node = curr_node.previous_node
     nodes.reverse()
     return nodes
-# nodes = get_all_the_nodes(final_node_case_1)
-# nodes2 = get_all_the_nodes(final_node_case_2)
-# nodes3 = get_all_the_nodes(final_node_case_3)
-# nodes4 = get_all_the_nodes(final_node_case_4)
-# nodes5 = get_all_the_nodes(final_node_case_5)
-# nodes6 = get_all_the_nodes(final_node_case_6)
+# output stpes
 def output_steps(node_list):
+    steps = []
     for i in range(1, len(node_list)):
+        steps.append(node_list[i].step)
         print(f"Operation type is {node_list[i].step.movement_type}; Start position {node_list[i].step.start_pos}, End position {node_list[i].step.end_pos}, Time estimated:{node_list[i].step.time_estimate}")
-# print("case1")
-# output_steps(nodes)
-# print("case2")
-# output_steps(nodes2)
-# print("case3")
-# output_steps(nodes3)
-# print("case4")
-# output_steps(nodes4)
-# print("case5")
-# output_steps(nodes5)
-# print('case6')
-# output_steps(nodes6)
 
 def get_steps(manifest, unload, load , h):
     res = parse_manifest(manifest)
@@ -325,7 +236,8 @@ def get_steps(manifest, unload, load , h):
     Start_Node = Node(start_ship)
     final_node = unload_load(Start_Node, h ,unload, load)
     node_list = get_all_the_nodes(final_node)
-    output_steps(node_list)
+    steps = output_steps(node_list)
+    return steps
 
 
 files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
@@ -337,7 +249,7 @@ for i in range(len(files)):
         import time
         print("no huestic")
         start_time = time.time()
-        get_steps(f.read(), unload_cases[i], load_cases[i],False)
+        steps = get_steps(f.read(), unload_cases[i], load_cases[i],False)
         end_time = time.time()
         time_spent = end_time - start_time
         print(time_spent, "seconds spent")
@@ -348,104 +260,9 @@ for i in range(len(files)):
         import time
         print("huestic")
         start_time = time.time()
-        get_steps(f.read(), unload_cases[i], load_cases[i],True)
+        steps = get_steps(f.read(), unload_cases[i], load_cases[i],True)
         end_time = time.time()
         time_spent = end_time - start_time
         print(time_spent, "seconds spent")
         print('\n')
     
-
-
-# def get_position_moved(ship1, ship2):
-#     indexes = []
-#     for i in range(len(ship1)):
-#         for j in range(len(ship1[0])):
-#             if ship1[i][j].name != ship2[i][j].name:
-#                 indexes.append([i,j])
-#     return indexes
-
-#unloading and loading
-
-# def get_time(index1, index2):
-#     time = 0 
-#     if type(index1) != str and type(index2) != str:
-#         x_distance = abs(index1[0] - index2[0])
-#         y_distance = abs(index1[1] - index2[1])
-#         time = x_distance + y_distance
-#     else:
-#         portal = [0,9]
-#         portal_time = 2
-#         if type(index1) == str:
-#             x_distance = abs(index2[0] - portal[0])
-#             y_distance = abs(index2[1] - portal[1])
-#         else:
-#             x_distance = abs(index1[0] - portal[0])
-#             y_distance = abs(index1[1] - portal[1])
-#         time = x_distance + y_distance + portal_time
-#     return time
-# print("time test")
-# print(get_time([0,8], [1,1]))
-# print(get_time("Dock", [0,0]))
-# print(get_time([0,0], "dock"))
-
-# def move_first(ship1, pos_moved):
-#     start_pos = []
-#     for i in range(pos_moved):
-#         if ship1[pos_moved[i][0], pos_moved[i][1]].isEmpty == False:
-#             start_pos = [pos_moved[i][0],pos_moved[i][1]]
-#             return start_pos, i 
-
-
-
-# def get_steps(nodes_list):
-#     steps = []
-#     current_pos = [0,9]
-#     for i in range(1, len(nodes_list)):
-#         print(nodes_list[i].crane_pos)
-#         pos_moved = get_position_moved(nodes_list[i-1].ship, nodes_list[i].ship)
-#         if len(pos_moved) == 2:
-#             first_move_pos , first_move_index  = move_first(nodes_list[i-1].ship, pos_moved[0])
-            
-#             break
-#         else:
-#             if nodes_list[i].crane_pos == "Dock":
-#                 # step1 = Step(current_pos, pos_moved[0], get_time(current_pos,pos_moved[0]), "Unloading" )
-#                 # steps.append(step1)
-#                 # current_pos = pos_moved[0]
-#                 step = Step(current_pos, "Dock", get_time(current_pos,"Dock"), "Unloading" )
-#                 steps.append(step)
-#                 current_pos = "Dock"
-#                 continue
-#             if nodes_list[i].crane_pos == "Ship":
-#                 if current_pos == "Dock":
-#                     step1 = Step(current_pos, pos_moved[0], get_time(current_pos,  pos_moved[0]), "Loading")
-#                     steps.append(step1)
-#                     current_pos = pos_moved[0]
-#                     continue    
-#                 # else: 
-#                 #     step1 = Step(current_pos, "Dock", get_time(current_pos, "Dock"), "Loading")
-#                 #     steps.append(step1)
-#                 #     current_pos = "Dock"
-#                 #     step2 = Step(current_pos, pos_moved[0], get_time(current_pos,  pos_moved[0]), "Loading")
-#                 #     steps.append(step2)
-#                 #     continue
-                
-    
-#         # if nodes[i+1].crane_pos == "Dock":
-#         #     start_pos = get_position_moved(nodes[i].ship,nodes[i+1].ship)
-#         #     step = Step(start_pos, "Dock", 10, "Unloading" )
-#         #     steps.append(step)
-#         # if nodes[i].crane_pos == "Dock" and nodes[i+1].crane_pos == "Ship":
-#         #     end_pos = get_position_moved(nodes[i].ship,nodes[i+1].ship)
-#         #     step = Step("Dock", end_pos, 10, "Loading")
-#     return steps
-# steps = get_steps(nodes)
-# steps2 = get_steps(nodes2)
-# print("node 3")
-# steps3 = get_steps(nodes3)
-# # # print(len(steps))
-# def output_step(steps):
-#     for step in steps:
-#         print(f"Start position: {step.start_pos} , end position: {step.end_pos} , time: {step.time_estimate} minutes, movement : {step.movement_type}")
-# output_step(steps)
-# output_step(steps2)

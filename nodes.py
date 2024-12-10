@@ -278,10 +278,3 @@ class Node:
             if self.check_column(j) is not None:
                 available_moves.append(self.check_column(j))
         return available_moves
-
-                       
-# with open(f"SilverQueen.txt") as f:
-#     res = parse_manifest(f.read())
-# shipSilverQueen  = to_grid(res)
-# startNode = Node(shipSilverQueen)
-# print(startNode.check_available([1,1]))

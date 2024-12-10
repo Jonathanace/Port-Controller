@@ -1,2 +1,0 @@
-# #ijsioagoiadoijio
-print(len(None))
