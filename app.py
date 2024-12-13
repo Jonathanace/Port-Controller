@@ -41,7 +41,7 @@ def make_grid(prev_grid=None, start_pos=None, end_pos=None):
     if prev_grid is None: # If no previous grid, generate a new grid from the manifest
         print('Generating Grid')
         grid = np.zeros((8, 12), dtype=np.int32)
-        with open('test_manifests/SilverQueen.txt') as file:
+        with open(manifest_path) as file:
             manifest = file.read()
         for item in parse_manifest(manifest):
             # print(item)
@@ -78,6 +78,10 @@ def save_grid(grid, step_num):
     image_path = os.path.join(PLAN_FOLDER, f'{step_num}.png')
     flipped_grid = np.flip(grid)
     plt.imshow(flipped_grid, cmap=cmap, vmin=0, vmax=4)
+    try:
+        os.remove(image_path)
+    except:
+        pass
     plt.savefig(image_path)
     return image_path
 
@@ -98,7 +102,7 @@ def upload_file(file_path=None):
             
         except:
             pass
-        
+
         files = glob.glob(os.path.join(PLAN_FOLDER, '*'))
         for file in files:
             app.logger.info(f'removing {file}')
@@ -156,14 +160,14 @@ def balance_manifest():
     with open(manifest_path) as file:
         manifest = file.read()
     steps = get_steps(manifest)
+    for step in steps:
+        print(step)
     grid = make_grid()
     
-    file_names = []
     for step_num, step in enumerate(steps):
         grid = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos)
         image_path = save_grid(grid, step_num)
-        # display_grid(grid)
-        file_names.append(image_path)
+        display_grid(grid)
 
     return jsonify(), 200
     
@@ -182,5 +186,5 @@ def log_comment():
 
 
 if __name__ == '__main__':
-    # balance_manifest()
-    app.run(port=5000, debug=True)
+    balance_manifest()
+    # app.run(port=5000, debug=True)
