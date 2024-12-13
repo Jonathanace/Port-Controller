@@ -186,5 +186,5 @@ def log_comment():
 
 
 if __name__ == '__main__':
-    balance_manifest()
-    # app.run(port=5000, debug=True)
+    # balance_manifest()
+    app.run(port=5000, debug=True)
