@@ -95,8 +95,14 @@ def upload_file(file_path=None):
     if file:
         try:
             os.remove(manifest_path)
+            
         except:
             pass
+        
+        files = glob.glob(os.path.join(PLAN_FOLDER, '*'))
+        for file in files:
+            app.logger.info(f'removing {file}')
+            os.remove(file)
         file.save(manifest_path)
         app.logger.info('Manifest Saved')
         return jsonify(), 200 # FIXME: return ship's name here
