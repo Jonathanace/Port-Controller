@@ -94,9 +94,12 @@ export function PlanCarousel() {
 
         <CarouselNext />
       </Carousel>
-      <div className="py-2 text-center text-sm text-muted-foreground">
-        Step {current} of {count}
-      </div>
+      {images[current - 1] !== 'static-card' && ( 
+        <div className="py-2 text-center text-sm text-muted-foreground"> 
+        Step {current} of {count} 
+        </div> 
+      )
+      }
     </div>
   )
 }
