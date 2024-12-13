@@ -2,4 +2,4 @@ ShipCase*.txt
 SilverQueen*.txt
 __pycache__
 logfile2024.txt
-frontend/public/images*
+frontend/public/image/*
