@@ -7,7 +7,7 @@ from balancing import get_steps
 import json
 import logging
 import numpy as np
-
+from saving_to_log_file import save_to_logfile
 import glob
 
 app = Flask(__name__)
@@ -146,7 +146,7 @@ def get_containers():
 
 @app.route('/balance-manifest', methods=['POST'])
 def balance_manifest():
-    app.logger.info('Balance manifest called')
+    app.logger.info('balance_manifest called')
     with open(manifest_path) as file:
         manifest = file.read()
     steps = get_steps(manifest)
@@ -161,7 +161,20 @@ def balance_manifest():
 
     return jsonify(), 200
     
+@app.route('/log-comment', methods=['POST'])
+def log_comment():
+    app.logger.info('log_comment called')
+    try:
+        data = request.get_json()
+        app.logger.info('data received')
+    except:
+        pass
+    comment = data['comment']
+    app.logger.info(f'saving to logfile: {comment}')
+    save_to_logfile(comment)
+    return jsonify(), 200
+
+
 if __name__ == '__main__':
     # balance_manifest()
-    
     app.run(port=5000, debug=True)

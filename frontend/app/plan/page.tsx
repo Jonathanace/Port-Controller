@@ -97,13 +97,30 @@ export function PlanCarousel() {
   )
 }
 
+export const LogComment = (comment: string) => {
+  fetch('http://localhost:5000/log-comment',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({comment: comment})
+    }
+  )
+}
+
 export default function Page() {
+    const [comment, setComment] = useState('');
     return <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
         <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
             <PlanCarousel />
             <div className="grid w-full gap-2">
-              <Textarea placeholder="Write your comments here."/>
-              <Button>Log Comment</Button>
+              <Textarea 
+              placeholder="Write your comments here."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              />
+              <Button onClick={() => LogComment(comment)}>Log Comment</Button>
             </div>
 
         </main>
