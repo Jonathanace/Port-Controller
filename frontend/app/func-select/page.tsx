@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import React, { useEffect, useState } from 'react';
 import { toast } from "@/hooks/use-toast";
+import { useHeader } from "@/context/HeaderContext";
+import { useRouter } from "next/navigation";
+
 
 import {
   Tooltip,
@@ -258,6 +261,7 @@ export const ProcessManifest = (operation: string) => {
 }
 
 export const BalanceManifest = () => {
+  const router = useRouter();
   const [isDisabled, setIsDisabled] = useState(false);
 
   const handleBalanceManifest = () => {
@@ -268,7 +272,7 @@ export const BalanceManifest = () => {
       method: 'POST'
     }).then(resopnse => {
         setIsDisabled(false);
-        window.location.href = '/plan'
+        router.push('/plan')
     });
   };
   return (

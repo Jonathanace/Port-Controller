@@ -1,5 +1,5 @@
 "use client"
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 interface HeaderContextProps {
   headerText: string;
@@ -16,7 +16,21 @@ export const useHeader = () => {
 }
 
 export const HeaderProvider = ({ children }: { children: ReactNode }) => {
-  const [headerText, setHeaderText] = useState('DEFAULT HEADER TEXT');
+  const [headerText, setHeaderText] = useState<string>(() => {
+    return localStorage.getItem('headerText') || 'DEFAULT HEADER TEXT';
+  });
+
+  const updateHeaderText = (text: string) => {
+    setHeaderText(text);
+    localStorage.setItem('headerText', text);
+  };
+
+  useEffect(() => {
+    const storedHeaderText = localStorage.getItem('headerText');
+    if (storedHeaderText) {
+      setHeaderText(storedHeaderText);
+    }
+  }, []);
 
   return (
     <HeaderContext.Provider value={{ headerText, setHeaderText }}>

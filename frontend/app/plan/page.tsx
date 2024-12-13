@@ -1,5 +1,7 @@
 "use client"
 import React, {useEffect, useState} from "react"
+import { useRouter } from "next/navigation";
+
 
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -18,6 +20,8 @@ import { Button } from "@/components/ui/button"
 
 
 export function PlanCarousel() {
+
+  const router = useRouter();
   const [api, setApi] = React.useState<CarouselApi>()
   const [current, setCurrent] = React.useState(0)
   const [count, setCount] = React.useState(0)
@@ -72,7 +76,7 @@ export function PlanCarousel() {
                   {image === 'static-card' ? (
                     <div>
                       You have completed all steps! <br />
-                      Click <a href="/func-select" className="text-black-500 underline">here</a> to return.
+                      Click <a onClick={() => router.push('/func-select')} className="text-black-500 underline cursor-pointer">here</a> to return.
                     </div>
 
                   ) : (
