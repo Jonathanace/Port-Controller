@@ -38,12 +38,14 @@ else:
 colors = ['white', 'black', 'gray', 'red', 'green']  
 cmap = ListedColormap(colors)
 
-def make_grid(prev_grid=None, start_pos=None, end_pos=None, name=None):
+def get_manifest():
+    return [open(entry.path, 'r').read() for entry in os.scandir('uploads/') if entry.is_file()][0]
+
+def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None):
     if prev_grid is None: # If no previous grid, generate a new grid from the manifest
         print('Generating Grid')
         grid = np.zeros((8, 12), dtype=np.int32)
-        with open(manifest_path) as file:
-            manifest = file.read()
+        manifest = get_manifest()
         for item in parse_manifest(manifest):
             # print(item)
             x, y = item['location'][0]-1, item['location'][1]-1
@@ -62,12 +64,14 @@ def make_grid(prev_grid=None, start_pos=None, end_pos=None, name=None):
     # Visualize start and end position if necessary
     
     if start_pos and end_pos:
-        display_text = 'Move the cargo from the {start_type} to the {end_type}'
+        display_text = 'Move {cargo_name} from the {start_type} to the {end_type}'
         print('start and end detected')
         if start_pos == 'Dock':
+            cargo_name = cargo_name
             start_type = 'Dock'
             pass
         else:
+            cargo_name = "the cargo"
             start_type = 'Red Square'
             start_x, start_y = start_pos[0]-1, start_pos[1]-1
             grid[start_x, start_y] = 3 # (gray->red)
@@ -78,7 +82,7 @@ def make_grid(prev_grid=None, start_pos=None, end_pos=None, name=None):
             end_type = 'Green Square'
             end_x, end_y = end_pos[0]-1, end_pos[1]-1
             grid[end_x, end_y] = 4 # (white->green)
-        display_text = display_text.format(start_type=start_type, end_type=end_type)
+        display_text = display_text.format(cargo_name=cargo_name, start_type=start_type, end_type=end_type)
     else: 
         display_text = "Initial grid"
         
@@ -121,7 +125,7 @@ def upload_file(file_path=None):
             os.remove(remove_file)
         file.save(os.path.join(UPLOAD_FOLDER, ship_name))
         app.logger.info('Manifest Saved')
-        return jsonify(), 200 # FIXME: return ship's name here
+        return jsonify(), 200 
 
 @app.route('/process-manifest', methods=['POST'])
 def process_manifest():
@@ -137,12 +141,7 @@ def process_manifest():
         app.logger.warning('No parsing option passed!')
         return jsonify({'error': 'No parsing option passed'}), 400
     
-    with open(manifest_path) as file:
-        manifest = file.read()
-        # app.logger.info('Parsing Manifest')
-        # parsed_manifest = parse_manifest(file.read())
-        # app.logger.info('Manifest Parsed')
-    
+    manifest = get_manifest()
     
     if parse_option == 'Balance':
         app.logger.info('Balance function selected')
@@ -159,8 +158,8 @@ def process_manifest():
     
 @app.route('/get-containers', methods=['GET'])
 def get_containers():
-    with open(manifest_path) as manifest:
-        parsed_manifest = parse_manifest(manifest.read())
+    manifest = get_manifest()
+    parsed_manifest = parse_manifest(manifest)
     container_names = [{'id': i['company'], 'label': i['company']} for i in parsed_manifest if i['company'] not in ['UNUSED', 'NAN']]
     
     app.logger.info(container_names)
@@ -169,15 +168,14 @@ def get_containers():
 @app.route('/balance-manifest', methods=['POST'])
 def balance_manifest():
     app.logger.info('balance_manifest called')
-    with open(manifest_path) as file:
-        manifest = file.read()
+    manifest = get_manifest()
     steps = get_balancing_steps(manifest)
     for step in steps:
         print(step)
     grid, _ = make_grid()
     
     for step_num, step in enumerate(steps):
-        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, name='placeholder_name')
+        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name)
         image_path = save_grid(grid, step_num, display_text)
         # display_grid(grid)
 
@@ -210,7 +208,7 @@ def load_unload_manifest():
         print(load_names_and_weights)
     print(f'load: {load}')
     print(f'unload: {unload}')
-    steps = get_unloading_steps(file_path=manifest_path,
+    steps = get_unloading_steps(file_path=next(os.scandir('uploads/')).path,
                         file_name='test.txt',
                         unload=unload,
                         load=load,
@@ -219,7 +217,7 @@ def load_unload_manifest():
     grid, _ = make_grid()
     
     for step_num, step in enumerate(steps):
-        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, name=step.name)
+        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name)
         image_path = save_grid(grid, step_num, display_text)
 
 
