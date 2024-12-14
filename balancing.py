@@ -163,7 +163,7 @@ def to_item_list(grid):
     return items
 
 def get_steps(file_name: str):
-    with open(f"{file_name}.txt") as f:
+    with open(file_name) as f:
         items = parse_manifest(f.read())
     res = []
     curr, is_sifted = balance(items)
@@ -175,7 +175,7 @@ def get_steps(file_name: str):
         res.append(curr.get_step())
         curr = prev
     item_list = to_item_list(final_node.ship)
-    save_modified_manifest(item_list, file_name)
+    save_modified_manifest(item_list, file_name.replace(".txt", ""))
     res.reverse()
     return res
     
