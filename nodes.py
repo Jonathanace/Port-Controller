@@ -157,7 +157,7 @@ class Node:
             s2 = end_pos[1] - 1
             temp_grid = self.ship[s1][s2]
             weight = temp_grid.weight
-            temp = Step(start_pos, end_pos, time_estimation, movement_type, weight)
+            temp = Step(start_pos, end_pos, time_estimation, movement_type, weight = weight)
             return temp
 
         if self.movement == "Load":
