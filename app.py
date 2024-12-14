@@ -51,11 +51,11 @@ def get_ship_name():
 
 def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None, cargo_weight=None):
     if prev_grid is None: # If no previous grid, generate a new grid from the manifest
-        print('Generating Grid')
+        # print('Generating Grid')
         grid = np.zeros((8, 12), dtype=np.int32)
         manifest = get_manifest()
         for item in parse_manifest(manifest):
-            # print(item)
+            # print(f'{item['company']} at {item['location']}')
             x, y = item['location'][0]-1, item['location'][1]-1
             if item['company'] == 'UNUSED':
                 grid[x,y] = 0
@@ -73,7 +73,7 @@ def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None, car
     
     if start_pos and end_pos:
         display_text = 'Move {cargo_name} from the {start_type} to the {end_type}.\nCargo should weigh: {cargo_weight} lbs'
-        print('start and end detected')
+        # print('start and end detected')
         if start_pos == 'Dock':
             cargo_name = cargo_name
             start_type = 'Dock'
@@ -124,21 +124,22 @@ def upload_file(file_path=None):
             return jsonify({'error': 'No file part'}), 400
         file = request.files['file']
         ship_name = request.form.get('shipName')
-        print(ship_name)
+        print(f'Ship name: {ship_name}')
         if file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
 
         remove_files = glob.glob(os.path.join(UPLOAD_FOLDER, '*'))
         for remove_file in remove_files:
-            app.logger.info(f'removing {remove_file}')
+            # app.logger.info(f'removing {remove_file}')
             os.remove(remove_file)
 
         remove_files = glob.glob(os.path.join(PLAN_FOLDER, '*'))
         for remove_file in remove_files:
-            app.logger.info(f'removing {remove_file}')
+            # app.logger.info(f'removing {remove_file}')
             os.remove(remove_file)
+        app.logger.info('Uploading Manifest...')
         file.save(os.path.join(UPLOAD_FOLDER, ship_name))
-        app.logger.info('Manifest Saved')
+        app.logger.info('Manifest Successfully Uploaded')
         return jsonify(), 200 
 
 @app.route('/process-manifest', methods=['POST'])
@@ -176,7 +177,7 @@ def get_containers():
     parsed_manifest = parse_manifest(manifest)
     container_names = [{'id': i['company'], 'label': i['company']} for i in parsed_manifest if i['company'] not in ['UNUSED', 'NAN']]
     
-    app.logger.info(container_names)
+    app.logger.info(f'container_names: {container_names}')
     return jsonify(container_names), 200
 
 @app.route('/balance-manifest', methods=['POST'])
@@ -184,8 +185,6 @@ def balance_manifest():
     app.logger.info('balance_manifest called')
     manifest_path = get_manifest_path()
     steps = get_balancing_steps(manifest_path)
-    for step in steps:
-        print(step)
     grid, _ = make_grid()
     
     for step_num, step in enumerate(steps):
@@ -210,16 +209,16 @@ def log_comment():
 
 @app.route('/load-unload-manifest', methods=['POST'])
 def load_unload_manifest():
-    app.logger.info('Load Unload Manifest Called')
+    app.logger.info('Load Unload Request Called')
     data = request.get_json()
-    app.logger.info('Data received')
     unload_names = data.get("items")
     load_names_and_weights = [i.split("-") for i in data.get("namesAndWeights").split(",")]
     unload = [(i, 1) for i in unload_names]
     try:
         load = [(i[0], 1, int(i[1])) for i in load_names_and_weights if len(i)>1]
     except:
-        print(load_names_and_weights)
+        # print(load_names_and_weights)
+        pass
     print(f'load: {load}')
     print(f'unload: {unload}')
     steps = get_unloading_steps(file_path=get_manifest_path(),
@@ -227,7 +226,7 @@ def load_unload_manifest():
                         unload=unload,
                         load=load,
                         h=True)
-    app.logger.info("Load steps processed")
+    app.logger.info("Load/Unload steps processed")
     grid, _ = make_grid()
     
     for step_num, step in enumerate(steps):
