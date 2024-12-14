@@ -44,6 +44,11 @@ def get_manifest():
 def get_manifest_path():
     return next(os.scandir('uploads/')).path
 
+def get_ship_name():
+    manifest_path = get_manifest_path()
+    ship_name = os.path.basename(manifest_path).replace(".txt", "")
+    return ship_name
+
 def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None, cargo_weight=None):
     if prev_grid is None: # If no previous grid, generate a new grid from the manifest
         print('Generating Grid')
@@ -100,8 +105,9 @@ def display_grid(grid: np.ndarray):
 def save_grid(grid, step_num, display_text):
     image_path = os.path.join(PLAN_FOLDER, f'{step_num}.png')
     flipped_grid = np.flip(grid, axis=0)
+    plt.xticks(range(grid.shape[1]))
     plt.imshow(flipped_grid, cmap=cmap, vmin=0, vmax=4)
-    plt.title(display_text)
+    plt.title(f'{get_ship_name()}\n{display_text}')
     try:
         os.remove(image_path)
     except:
