@@ -1,5 +1,6 @@
 import re
 from typing import TYPE_CHECKING, TypedDict
+import os
 
 class Item(TypedDict):
     company: str
@@ -72,7 +73,12 @@ def save_modified_manifest(modified_manifest: list["Item"], file_name: str):
     manifest_lst_str = [_format_item(item) for item in modified_manifest]
 
     manifest = "\n".join(manifest_lst_str)
-    with open(f"{file_name}Outbound.txt", "w") as f:
+    file_path = f"{file_name}Outbound.txt"
+    try:
+        os.remove(file_path)
+    except:
+        pass
+    with open(file_path, "w") as f:
         f.write(manifest)
 
 def get_crate_names(parsed_manifest):

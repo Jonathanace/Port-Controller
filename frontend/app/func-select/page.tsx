@@ -11,6 +11,12 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import React, { useEffect, useState } from 'react';
 import { toast } from "@/hooks/use-toast";
+import { useHeader } from "@/context/HeaderContext";
+import { useRouter } from "next/navigation";
+import { Textarea } from "@/components/ui/textarea"
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+
+
 
 import {
   Tooltip,
@@ -18,14 +24,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 
 import Link from 'next/link'
 
@@ -44,32 +42,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 
-const items = [
-  {
-    id: "recents",
-    label: "Recents",
-  },
-  {
-    id: "home",
-    label: "Home",
-  },
-  {
-    id: "applications",
-    label: "Applications",
-  },
-  {
-    id: "desktop",
-    label: "Desktop",
-  },
-  {
-    id: "downloads",
-    label: "Downloads",
-  },
-  {
-    id: "documents",
-    label: "Documents",
-  },
-] as const
 
 const FormSchema = z.object({
   items: z.array(z.string()).refine((value) => value.some((item) => item), {
@@ -77,12 +49,15 @@ const FormSchema = z.object({
   }),
 })
 
-export function CheckboxReactHookFormMultiple() {
+export function LoadUnloadManifest() {
+  const router = useRouter();
+  const [isDisabled, setIsDisabled] = useState(false);
   const [items, setItems] = useState<{ id: string; label: string }[]>([]);
+  const [namesAndWeights, setNamesAndWeights] = useState('');
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      items: ["recents", "home"],
+      items: [],
     },
   })
 
@@ -96,14 +71,21 @@ export function CheckboxReactHookFormMultiple() {
   }, []);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    })
+    setIsDisabled(true);
+    const payload = {
+      ...data,
+      namesAndWeights,
+    };
+    fetch('http://localhost:5000/load-unload-manifest', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    }).then(response => {
+      setIsDisabled(false);
+      router.push('/plan')
+  });
   }
 
   return (
@@ -157,7 +139,23 @@ export function CheckboxReactHookFormMultiple() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Separator />
+        <Label>
+          <br />
+          Enter the names and weights of the container to be loaded. <br />
+          Separate the name and weight of a container with a dash. <br />
+          Separate multiple containers with a comma.
+        </Label>
+        <Textarea
+        placeholder="Cat-1000,Dog-750"
+        value={namesAndWeights}
+        onChange={(e) => setNamesAndWeights(e.target.value)}
+        />
+        <Button
+        disabled={isDisabled}
+        type="submit">
+          {isDisabled ? 'Processing manifest. Please wait.' : 'Submit Manifest'}
+        </Button>
       </form>
     </Form>
   )
@@ -179,15 +177,12 @@ export function ManifestUpload({ onUpload }: ManifestUploadProps) {
       const shipName = file.name;
       const formData = new FormData();
       formData.append('file', file)
+      formData.append('shipName', shipName)
       const response = await fetch('http://localhost:5000/upload', {
         method: 'POST',
         body: formData
       })
-      onUpload(shipName);
-      
-      // const data = await response.json();
-      
-      
+      onUpload(shipName);      
     }
     
   };
@@ -242,7 +237,7 @@ export const ManifestDialogButton: React.FC<ManifestDialogButtonProps> = ({ oper
           </DialogTitle>
           <DialogDescription>
           {operation === 'Load/Unload' ? (
-              <><CheckboxReactHookFormMultiple /></>
+              <LoadUnloadManifest />
           ) : (
             <BalanceManifest />
           )}
@@ -266,6 +261,7 @@ export const ProcessManifest = (operation: string) => {
 }
 
 export const BalanceManifest = () => {
+  const router = useRouter();
   const [isDisabled, setIsDisabled] = useState(false);
 
   const handleBalanceManifest = () => {
@@ -274,9 +270,9 @@ export const BalanceManifest = () => {
   fetch('http://localhost:5000/balance-manifest',
     {
       method: 'POST'
-    }).then(resopnse => {
+    }).then(response => {
         setIsDisabled(false);
-        window.location.href = '/plan'
+        router.push('/plan')
     });
   };
   return (

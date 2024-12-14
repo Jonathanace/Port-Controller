@@ -8,6 +8,7 @@ from step import Step
 import numpy as np
 import copy
 import sys
+import os
 
 # find the amount of each item
 def find_item_amount(item : str, ship):
@@ -240,8 +241,8 @@ def to_item_list(grid):
             items.append({"location": grid[i][j].position, "weight": grid[i][j].weight, "company": grid[i][j].name})
     return items
 
-def get_steps(file_name, unload, load , h):
-    with open(f"{file_name}.txt") as f:
+def get_steps(file_path, file_name, unload, load , h):
+    with open(file_path) as f:
         res = parse_manifest(f.read())
     start_ship  = to_grid(res) 
     Start_Node = Node(start_ship)
@@ -254,11 +255,12 @@ def get_steps(file_name, unload, load , h):
     item_list = to_item_list(final_node.ship)
     # for item in item_list:
     #     print(item)
-    save_modified_manifest(item_list, file_name)
+
+    save_modified_manifest(item_list, file_name.replace(".txt", ""))
     return steps
 
 if __name__ == "__main__":
-    files = ["ShipCase1", "ShipCase2", "ShipCase3", "ShipCase4", "ShipCase5", "SilverQueen"]
+    files = ["test_manifests/ShipCase1.txt", "test_manifests/ShipCase2.txt", "test_manifests/ShipCase3.txt", "test_manifests/ShipCase4.txt", "test_manifests/ShipCase5.txt", "test_manifests/SilverQueen.txt"]
     unload_cases = [[("Cat", 1)], None,  [("Cow",1)], [("Doe",1)] ,  [("Hen",1), ("Pig",1)], [("Batons",1), ("Catfish",1)] ]
     load_cases = [None ,  [("Bat",1, 431)],  [("Bat",1, 532), ("Rat",1, 6317)], [("Nat",1, 2543)] , [("Nat",1, 153),("Rat",1,2321)] , [("Nat",1,2543)]] 
     for i in range(len(files)):

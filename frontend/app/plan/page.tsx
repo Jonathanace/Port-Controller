@@ -1,5 +1,7 @@
 "use client"
 import React, {useEffect, useState} from "react"
+import { useRouter } from "next/navigation";
+
 
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -18,6 +20,8 @@ import { Button } from "@/components/ui/button"
 
 
 export function PlanCarousel() {
+
+  const router = useRouter();
   const [api, setApi] = React.useState<CarouselApi>()
   const [current, setCurrent] = React.useState(0)
   const [count, setCount] = React.useState(0)
@@ -72,7 +76,7 @@ export function PlanCarousel() {
                   {image === 'static-card' ? (
                     <div>
                       You have completed all steps! <br />
-                      Click <a href="/func-select" className="text-black-500 underline">here</a> to return.
+                      Click <a onClick={() => router.push('/func-select')} className="text-black-500 underline cursor-pointer">here</a> to return.
                     </div>
 
                   ) : (
@@ -90,20 +94,40 @@ export function PlanCarousel() {
 
         <CarouselNext />
       </Carousel>
-      <div className="py-2 text-center text-sm text-muted-foreground">
-        Step {current} of {count}
-      </div>
+      {images[current - 1] !== 'static-card' && ( 
+        <div className="py-2 text-center text-sm text-muted-foreground"> 
+        Step {current} of {count} 
+        </div> 
+      )
+      }
     </div>
   )
 }
 
+export const LogComment = (comment: string) => {
+  fetch('http://localhost:5000/log-comment',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({comment: comment})
+    }
+  )
+}
+
 export default function Page() {
+    const [comment, setComment] = useState('');
     return <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
         <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
             <PlanCarousel />
             <div className="grid w-full gap-2">
-              <Textarea placeholder="Write your comments here."/>
-              <Button>Log Comment</Button>
+              <Textarea 
+              placeholder="Write your comments here."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              />
+              <Button onClick={() => LogComment(comment)}>Log Comment</Button>
             </div>
 
         </main>

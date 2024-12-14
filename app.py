@@ -3,11 +3,12 @@ from flask_cors import CORS
 import os
 from utils import parse_manifest
 from pprint import pprint
-from balancing import get_steps
+from balancing import get_steps as get_balancing_steps
+from unloading_loading import get_steps as get_unloading_steps
 import json
 import logging
 import numpy as np
-
+from saving_to_log_file import save_to_logfile
 import glob
 
 app = Flask(__name__)
@@ -37,12 +38,22 @@ else:
 colors = ['white', 'black', 'gray', 'red', 'green']  
 cmap = ListedColormap(colors)
 
-def make_grid(prev_grid=None, start_pos=None, end_pos=None):
+def get_manifest():
+    return [open(entry.path, 'r').read() for entry in os.scandir('uploads/') if entry.is_file()][0]
+
+def get_manifest_path():
+    return next(os.scandir('uploads/')).path
+
+def get_ship_name():
+    manifest_path = get_manifest_path()
+    ship_name = os.path.basename(manifest_path).replace(".txt", "")
+    return ship_name
+
+def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None, cargo_weight=None):
     if prev_grid is None: # If no previous grid, generate a new grid from the manifest
         print('Generating Grid')
         grid = np.zeros((8, 12), dtype=np.int32)
-        with open('test_manifests/SilverQueen.txt') as file:
-            manifest = file.read()
+        manifest = get_manifest()
         for item in parse_manifest(manifest):
             # print(item)
             x, y = item['location'][0]-1, item['location'][1]-1
@@ -59,28 +70,50 @@ def make_grid(prev_grid=None, start_pos=None, end_pos=None):
 
 
     # Visualize start and end position if necessary
+    
     if start_pos and end_pos:
+        display_text = 'Move {cargo_name} from the {start_type} to the {end_type}.\nCargo should weigh: {cargo_weight} lbs'
         print('start and end detected')
-        start_x, start_y = start_pos[0]-1, start_pos[1]-1
-        end_x, end_y = end_pos[0]-1, end_pos[1]-1
-        grid[start_x, start_y] = 3 # (gray->red)
-        grid[end_x, end_y] = 4 # (white->green)
+        if start_pos == 'Dock':
+            cargo_name = cargo_name
+            start_type = 'Dock'
+            pass
+        else:
+            cargo_name = "the cargo"
+            start_type = 'Red Square'
+            start_x, start_y = start_pos[0]-1, start_pos[1]-1
+            grid[start_x, start_y] = 3 # (gray->red)
 
-    return grid
+        if end_pos == 'Dock':
+            end_type = 'Dock'
+        else:
+            end_type = 'Green Square'
+            end_x, end_y = end_pos[0]-1, end_pos[1]-1
+            grid[end_x, end_y] = 4 # (white->green)
+        display_text = display_text.format(cargo_name=cargo_name, start_type=start_type, end_type=end_type, cargo_weight=cargo_weight)
+    else: 
+        display_text = "Initial grid"
+        
+    return grid, display_text
 
 def display_grid(grid: np.ndarray):
-    flipped_grid = np.flip(grid)
+    flipped_grid = np.flip(grid, axis=0)
     plt.imshow(flipped_grid, cmap=cmap, vmin=0, vmax=4)
     plt.show()
     return grid
 
-def save_grid(grid, step_num):
+def save_grid(grid, step_num, display_text):
     image_path = os.path.join(PLAN_FOLDER, f'{step_num}.png')
-    flipped_grid = np.flip(grid)
+    flipped_grid = np.flip(grid, axis=0)
+    plt.xticks(range(grid.shape[1]))
     plt.imshow(flipped_grid, cmap=cmap, vmin=0, vmax=4)
+    plt.title(f'{get_ship_name()}\n{display_text}')
+    try:
+        os.remove(image_path)
+    except:
+        pass
     plt.savefig(image_path)
     return image_path
-
 
 @app.route('/upload', methods=['POST'])
 def upload_file(file_path=None):
@@ -90,16 +123,23 @@ def upload_file(file_path=None):
         if 'file' not in request.files:
             return jsonify({'error': 'No file part'}), 400
         file = request.files['file']
+        ship_name = request.form.get('shipName')
+        print(ship_name)
         if file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
-    if file:
-        try:
-            os.remove(manifest_path)
-        except:
-            pass
-        file.save(manifest_path)
+
+        remove_files = glob.glob(os.path.join(UPLOAD_FOLDER, '*'))
+        for remove_file in remove_files:
+            app.logger.info(f'removing {remove_file}')
+            os.remove(remove_file)
+
+        remove_files = glob.glob(os.path.join(PLAN_FOLDER, '*'))
+        for remove_file in remove_files:
+            app.logger.info(f'removing {remove_file}')
+            os.remove(remove_file)
+        file.save(os.path.join(UPLOAD_FOLDER, ship_name))
         app.logger.info('Manifest Saved')
-        return jsonify(), 200 # FIXME: return ship's name here
+        return jsonify(), 200 
 
 @app.route('/process-manifest', methods=['POST'])
 def process_manifest():
@@ -115,16 +155,11 @@ def process_manifest():
         app.logger.warning('No parsing option passed!')
         return jsonify({'error': 'No parsing option passed'}), 400
     
-    with open(manifest_path) as file:
-        manifest = file.read()
-        # app.logger.info('Parsing Manifest')
-        # parsed_manifest = parse_manifest(file.read())
-        # app.logger.info('Manifest Parsed')
-    
+    manifest_path = get_manifest_path()
     
     if parse_option == 'Balance':
         app.logger.info('Balance function selected')
-        steps = get_steps(manifest)
+        steps = get_balancing_steps(manifest_path)
         app.logger.info('Steps calculated for balancing operation')
         for step in steps:
             app.logger.info(step)
@@ -137,8 +172,8 @@ def process_manifest():
     
 @app.route('/get-containers', methods=['GET'])
 def get_containers():
-    with open(manifest_path) as manifest:
-        parsed_manifest = parse_manifest(manifest.read())
+    manifest = get_manifest()
+    parsed_manifest = parse_manifest(manifest)
     container_names = [{'id': i['company'], 'label': i['company']} for i in parsed_manifest if i['company'] not in ['UNUSED', 'NAN']]
     
     app.logger.info(container_names)
@@ -146,22 +181,63 @@ def get_containers():
 
 @app.route('/balance-manifest', methods=['POST'])
 def balance_manifest():
-    app.logger.info('Balance manifest called')
-    with open(manifest_path) as file:
-        manifest = file.read()
-    steps = get_steps(manifest)
-    grid = make_grid()
+    app.logger.info('balance_manifest called')
+    manifest_path = get_manifest_path()
+    steps = get_balancing_steps(manifest_path)
+    for step in steps:
+        print(step)
+    grid, _ = make_grid()
     
-    file_names = []
     for step_num, step in enumerate(steps):
-        grid = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos)
-        image_path = save_grid(grid, step_num)
+        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name, cargo_weight=step.weight)
+        image_path = save_grid(grid, step_num, display_text)
         # display_grid(grid)
-        file_names.append(image_path)
 
     return jsonify(), 200
     
+@app.route('/log-comment', methods=['POST'])
+def log_comment():
+    app.logger.info('log_comment called')
+    try:
+        data = request.get_json()
+        app.logger.info('data received')
+    except:
+        pass
+    comment = data['comment']
+    app.logger.info(f'saving to logfile: {comment}')
+    save_to_logfile(comment)
+    return jsonify(), 200
+
+@app.route('/load-unload-manifest', methods=['POST'])
+def load_unload_manifest():
+    app.logger.info('Load Unload Manifest Called')
+    data = request.get_json()
+    app.logger.info('Data received')
+    unload_names = data.get("items")
+    load_names_and_weights = [i.split("-") for i in data.get("namesAndWeights").split(",")]
+    unload = [(i, 1) for i in unload_names]
+    try:
+        load = [(i[0], 1, int(i[1])) for i in load_names_and_weights if len(i)>1]
+    except:
+        print(load_names_and_weights)
+    print(f'load: {load}')
+    print(f'unload: {unload}')
+    steps = get_unloading_steps(file_path=get_manifest_path(),
+                        file_name=get_ship_name(),
+                        unload=unload,
+                        load=load,
+                        h=True)
+    app.logger.info("Load steps processed")
+    grid, _ = make_grid()
+    
+    for step_num, step in enumerate(steps):
+        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name, cargo_weight=step.weight)
+        image_path = save_grid(grid, step_num, display_text)
+
+
+
+    return jsonify(), 200
+
 if __name__ == '__main__':
     # balance_manifest()
-    
     app.run(port=5000, debug=True)
