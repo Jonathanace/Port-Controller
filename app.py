@@ -223,7 +223,7 @@ def load_unload_manifest():
     print(f'load: {load}')
     print(f'unload: {unload}')
     steps = get_unloading_steps(file_path=get_manifest_path(),
-                        file_name='test.txt',
+                        file_name=get_ship_name(),
                         unload=unload,
                         load=load,
                         h=True)
