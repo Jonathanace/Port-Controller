@@ -50,6 +50,8 @@ const FormSchema = z.object({
 })
 
 export function LoadUnloadManifest() {
+  const router = useRouter();
+  const [isDisabled, setIsDisabled] = useState(false);
   const [items, setItems] = useState<{ id: string; label: string }[]>([]);
   const [namesAndWeights, setNamesAndWeights] = useState('');
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -69,6 +71,7 @@ export function LoadUnloadManifest() {
   }, []);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    setIsDisabled(true);
     const payload = {
       ...data,
       namesAndWeights,
@@ -79,7 +82,10 @@ export function LoadUnloadManifest() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
-    });
+    }).then(response => {
+      setIsDisabled(false);
+      router.push('/plan')
+  });
   }
 
   return (
@@ -176,7 +182,6 @@ export function ManifestUpload({ onUpload }: ManifestUploadProps) {
         body: formData
       })
       onUpload(shipName);      
-      
     }
     
   };
@@ -264,7 +269,7 @@ export const BalanceManifest = () => {
   fetch('http://localhost:5000/balance-manifest',
     {
       method: 'POST'
-    }).then(resopnse => {
+    }).then(response => {
         setIsDisabled(false);
         router.push('/plan')
     });
