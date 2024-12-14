@@ -180,7 +180,7 @@ def get_steps(file_name: str):
     return res
 
 if __name__ == "__main__":
-    files = ["ShipCase1", "ShipCase2", "ShipCase3", "ShipCase4", "ShipCase5", "SilverQueen"]
+    files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
     for file in files:
         print("CURRENTLY PROCESSING:", file)
         import time
@@ -188,6 +188,7 @@ if __name__ == "__main__":
         arr = get_steps(file)
         for square in arr:
             print("Operation type is \'", square.movement_type, end=" \'; ")
+            print("Name of Container:", square.container_name, end=", ")
             print("Weight of Container:", square.weight, end=", ")
             print("Start position:", square.start_pos, end=", ")
             print("End position:", square.end_pos, end=", ")

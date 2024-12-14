@@ -266,11 +266,12 @@ if __name__ == "__main__":
     for i in range(len(files)):
         print("CURRENTLY PROCESSING:", files[i])
         import time
-        print("no huestic")
+        print("No Heuristic")
         start_time = time.time()
-        steps = get_steps(files[i], unload_cases[i], load_cases[i],False)
+        steps = get_steps(files[i], unload_cases[i], load_cases[i], False)
         for square in steps:
             print("Operation type is \'", square.movement_type, end=" \'; ")
+            print("Name of Container:", square.container_name, end=", ")
             print("Weight of Container:", square.weight, end=", ")
             print("Start position:", square.start_pos, end=", ")
             print("End position:", square.end_pos, end=", ")
@@ -283,11 +284,12 @@ if __name__ == "__main__":
     for i in range(len(files)):
         print("CURRENTLY PROCESSING:", files[i])
         import time
-        print("huestic")
+        print("Heuristic")
         start_time = time.time()
         steps = get_steps(files[i], unload_cases[i], load_cases[i],True)
         for square in steps:
             print("Operation type is \'", square.movement_type, end=" \'; ")
+            print("Name of Container:", square.container_name, end=", ")
             print("Weight of Container:", square.weight, end=", ")
             print("Start position:", square.start_pos, end=", ")
             print("End position:", square.end_pos, end=", ")

@@ -157,7 +157,8 @@ class Node:
             s2 = end_pos[1] - 1
             temp_grid = self.ship[s1][s2]
             weight = temp_grid.weight
-            temp = Step(start_pos, end_pos, time_estimation, movement_type, weight = weight)
+            container_name = temp_grid.name
+            temp = Step(start_pos, end_pos, time_estimation, movement_type, weight = weight, container_name=container_name)
             return temp
 
         if self.movement == "Load":
@@ -168,8 +169,9 @@ class Node:
             s2 = end_pos[1] - 1
             temp_grid = self.ship[s1][s2]
             weight = temp_grid.weight
+            container_name = temp_grid.name
             movement_type = self.movement
-            temp = Step(start_pos, end_pos, time_estimation, movement_type, name, weight=weight)
+            temp = Step(start_pos, end_pos, time_estimation, movement_type, name, weight=weight, container_name=container_name)
             return temp
         if self.movement == "Unload":
             time_estimation, position, name = self.time_estimate()
@@ -179,8 +181,9 @@ class Node:
             s2 = start_pos[1] - 1
             temp_grid = self.previous_node.ship[s1][s2]
             weight = temp_grid.weight
+            container_name = temp_grid.name
             movement_type = self.movement
-            temp = Step(start_pos, end_pos, time_estimation, movement_type, weight=weight)
+            temp = Step(start_pos, end_pos, time_estimation, movement_type, weight=weight, container_name=container_name)
             return temp
     def check_unload_load(self):
         if self.movement == "Unload" and self.previous_node.movement == "Load":
