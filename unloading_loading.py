@@ -241,7 +241,7 @@ def to_item_list(grid):
     return items
 
 def get_steps(file_name, unload, load , h):
-    with open(file_name) as f:
+    with open(f"{file_name}.txt") as f:
         res = parse_manifest(f.read())
     start_ship  = to_grid(res) 
     Start_Node = Node(start_ship)
@@ -258,7 +258,7 @@ def get_steps(file_name, unload, load , h):
     return steps
 
 if __name__ == "__main__":
-    files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
+    files = ["ShipCase1", "ShipCase2", "ShipCase3", "ShipCase4", "ShipCase5", "SilverQueen"]
     unload_cases = [[("Cat", 1)], None,  [("Cow",1)], [("Doe",1)] ,  [("Hen",1), ("Pig",1)], [("Batons",1), ("Catfish",1)] ]
     load_cases = [None ,  [("Bat",1, 431)],  [("Bat",1, 532), ("Rat",1, 6317)], [("Nat",1, 2543)] , [("Nat",1, 153),("Rat",1,2321)] , [("Nat",1,2543)]] 
     for i in range(len(files)):
@@ -278,7 +278,7 @@ if __name__ == "__main__":
             import time
             print("huestic")
             start_time = time.time()
-            steps = get_steps(f.read(), unload_cases[i], load_cases[i],True)
+            steps = get_steps(files[i], unload_cases[i], load_cases[i],True)
             end_time = time.time()
             time_spent = end_time - start_time
             print(time_spent, "seconds spent")
