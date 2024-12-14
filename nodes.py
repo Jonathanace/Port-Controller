@@ -158,7 +158,12 @@ class Node:
             temp_grid = self.ship[s1][s2]
             weight = temp_grid.weight
             container_name = temp_grid.name
-            temp = Step(start_pos, end_pos, time_estimation, movement_type, weight = weight, container_name=container_name)
+            container_count = 0
+            for i in self.ship:
+                for j in i:
+                    if j.weight != 0:
+                        container_count += 1
+            temp = Step(start_pos, end_pos, time_estimation, movement_type, weight = weight, container_name=container_name, container_count=container_count)
             return temp
 
         if self.movement == "Load":
@@ -171,7 +176,12 @@ class Node:
             weight = temp_grid.weight
             container_name = temp_grid.name
             movement_type = self.movement
-            temp = Step(start_pos, end_pos, time_estimation, movement_type, name, weight=weight, container_name=container_name)
+            container_count = 0
+            for i in self.ship:
+                for j in i:
+                    if j.weight != 0:
+                        container_count += 1
+            temp = Step(start_pos, end_pos, time_estimation, movement_type, name, weight=weight, container_name=container_name, container_count=container_count)
             return temp
         if self.movement == "Unload":
             time_estimation, position, name = self.time_estimate()
@@ -183,7 +193,12 @@ class Node:
             weight = temp_grid.weight
             container_name = temp_grid.name
             movement_type = self.movement
-            temp = Step(start_pos, end_pos, time_estimation, movement_type, weight=weight, container_name=container_name)
+            container_count = 0
+            for i in self.ship:
+                for j in i:
+                    if j.weight != 0:
+                        container_count += 1
+            temp = Step(start_pos, end_pos, time_estimation, movement_type, weight=weight, container_name=container_name, container_count=container_count)
             return temp
     def check_unload_load(self):
         if self.movement == "Unload" and self.previous_node.movement == "Load":

@@ -188,6 +188,7 @@ if __name__ == "__main__":
         arr = get_steps(file)
         for square in arr:
             print("Operation type is \'", square.movement_type, end=" \'; ")
+            print("Number of Containers:", square.container_count, end=", ")
             print("Name of Container:", square.container_name, end=", ")
             print("Weight of Container:", square.weight, end=", ")
             print("Start position:", square.start_pos, end=", ")
