@@ -241,7 +241,7 @@ def to_item_list(grid):
             items.append({"location": grid[i][j].position, "weight": grid[i][j].weight, "company": grid[i][j].name})
     return items
 
-def get_steps(file_path, unload, load , h):
+def get_steps(file_path, file_name, unload, load , h):
     with open(file_path) as f:
         res = parse_manifest(f.read())
     start_ship  = to_grid(res) 
@@ -255,12 +255,8 @@ def get_steps(file_path, unload, load , h):
     item_list = to_item_list(final_node.ship)
     # for item in item_list:
     #     print(item)
-    save_path = os.path.splitext(os.path.basename(file_path))[0]
-    try:
-        os.remove(save_path)
-    except:
-        pass
-    save_modified_manifest(item_list, save_path)
+
+    save_modified_manifest(item_list, file_name.replace(".txt", ""))
     return steps
 
 if __name__ == "__main__":

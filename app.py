@@ -3,7 +3,8 @@ from flask_cors import CORS
 import os
 from utils import parse_manifest
 from pprint import pprint
-from balancing import get_steps
+from balancing import get_steps as get_balancing_steps
+from unloading_loading import get_steps as get_unloading_steps
 import json
 import logging
 import numpy as np
@@ -149,7 +150,7 @@ def process_manifest():
     
     if parse_option == 'Balance':
         app.logger.info('Balance function selected')
-        steps = get_steps(manifest)
+        steps = get_balancing_steps(manifest)
         app.logger.info('Steps calculated for balancing operation')
         for step in steps:
             app.logger.info(step)
@@ -174,7 +175,7 @@ def balance_manifest():
     app.logger.info('balance_manifest called')
     with open(manifest_path) as file:
         manifest = file.read()
-    steps = get_steps(manifest)
+    steps = get_balancing_steps(manifest)
     for step in steps:
         print(step)
     grid, _ = make_grid()
@@ -204,7 +205,29 @@ def load_unload_manifest():
     app.logger.info('Load Unload Manifest Called')
     data = request.get_json()
     app.logger.info('Data received')
-    print(data.get('items'))
+    unload_names = data.get("items")
+    load_names_and_weights = [i.split("-") for i in data.get("namesAndWeights").split(",")]
+    unload = [(i, 1) for i in unload_names]
+    try:
+        load = [(i[0], 1, int(i[1])) for i in load_names_and_weights if len(i)>1]
+    except:
+        print(load_names_and_weights)
+    print(f'load: {load}')
+    print(f'unload: {unload}')
+    steps = get_unloading_steps(file_path=manifest_path,
+                        file_name='test.txt',
+                        unload=unload,
+                        load=load,
+                        h=True)
+    app.logger.info("Load steps processed")
+    grid, _ = make_grid()
+    
+    for step_num, step in enumerate(steps):
+        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, name=step.name)
+        image_path = save_grid(grid, step_num, display_text)
+
+
+
     return jsonify(), 200
 
 if __name__ == '__main__':
