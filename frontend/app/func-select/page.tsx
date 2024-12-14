@@ -13,6 +13,8 @@ import React, { useEffect, useState } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { useHeader } from "@/context/HeaderContext";
 import { useRouter } from "next/navigation";
+import { Textarea } from "@/components/ui/textarea"
+
 
 
 import {
@@ -39,32 +41,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 
-const items = [
-  {
-    id: "recents",
-    label: "Recents",
-  },
-  {
-    id: "home",
-    label: "Home",
-  },
-  {
-    id: "applications",
-    label: "Applications",
-  },
-  {
-    id: "desktop",
-    label: "Desktop",
-  },
-  {
-    id: "downloads",
-    label: "Downloads",
-  },
-  {
-    id: "documents",
-    label: "Documents",
-  },
-] as const
 
 const FormSchema = z.object({
   items: z.array(z.string()).refine((value) => value.some((item) => item), {
@@ -72,8 +48,9 @@ const FormSchema = z.object({
   }),
 })
 
-export function CheckboxReactHookFormMultiple() {
+export function LoadUnloadManifest() {
   const [items, setItems] = useState<{ id: string; label: string }[]>([]);
+  const [namesAndWeights, setNamesAndWeights] = useState('');
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -152,6 +129,16 @@ export function CheckboxReactHookFormMultiple() {
             </FormItem>
           )}
         />
+        <Separator />
+        <Label>
+          <br />
+          Enter the names and weights of the container to be loaded. <br />
+          Separate the name and weight of a container with a dash. <br />
+          Separate multiple containers with a comma.
+        </Label>
+        <Textarea
+        placeholder="Cat-1000,Dog-750"
+        />
         <Button type="submit">Submit</Button>
       </form>
     </Form>
@@ -178,10 +165,7 @@ export function ManifestUpload({ onUpload }: ManifestUploadProps) {
         method: 'POST',
         body: formData
       })
-      onUpload(shipName);
-      
-      // const data = await response.json();
-      
+      onUpload(shipName);      
       
     }
     
@@ -237,7 +221,7 @@ export const ManifestDialogButton: React.FC<ManifestDialogButtonProps> = ({ oper
           </DialogTitle>
           <DialogDescription>
           {operation === 'Load/Unload' ? (
-              <><CheckboxReactHookFormMultiple /></>
+              <LoadUnloadManifest />
           ) : (
             <BalanceManifest />
           )}
