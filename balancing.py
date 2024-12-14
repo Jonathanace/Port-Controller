@@ -155,28 +155,38 @@ def swap_squares(ship: Node, first_obj: tuple[int, int], second_obj: tuple[int, 
     curr[first_obj[0]][first_obj[1]].position = new_pos1
     curr[second_obj[0]][second_obj[1]].position = new_pos2
     return curr
+def to_item_list(grid):
+    items: list["Item"] = []
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            items.append({"location": grid[i][j].position, "weight": grid[i][j].weight, "company": grid[i][j].name})
+    return items
 
-def get_steps(manifest: str):
+def get_steps(file_name: str):
+    with open(f"{file_name}.txt") as f:
+        items = parse_manifest(f.read())
     res = []
-    items = parse_manifest(manifest)
     curr, is_sifted = balance(items)
+    final_node = curr
     while(curr != None):
         prev = curr.previous_node
         if(prev == None):
             break
         res.append(curr.get_step())
         curr = prev
+    item_list = to_item_list(final_node.ship)
+    save_modified_manifest(item_list, file_name)
     res.reverse()
     return res
     
 if __name__ == "__main__":
-    files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
+    files = ["ShipCase1", "ShipCase2", "ShipCase3", "ShipCase4", "ShipCase5", "SilverQueen"]
     for file in files:
         print("CURRENTLY PROCESSING:", file)
         with open(file) as f:
             import time
             start_time = time.time()
-            arr = get_steps(f.read())
+            arr = get_steps(file)
             for square in arr:
                 print("Operation type is \'", square.movement_type, end=" \'; ")
                 print("Weight of Container:", square.weight, end=", ")

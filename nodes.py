@@ -96,16 +96,16 @@ class Node:
         for i in range(len(ship1)):
             for j in range(len(ship1[0])):
                 if ship1[i][j].name != ship2[i][j].name:
-                    return ship1[i][j].position
+                    return ship2[i][j].position, ship2[i][j].name
     def time_estimate(self):
         if self.movement == 'Load' or self.movement == 'Unload':
             time = 0
-            position = self.get_position()
+            position,name = self.get_position()
             portal = [9,1]
             x_distance = abs(position[0] - portal[0])
             y_distance = abs(position[1] - portal[1])
             time = 2 + x_distance + y_distance
-            return time, position
+            return time, position, name
         else:
             prev_ship = self.previous_node.ship
             changes = 0
@@ -161,14 +161,14 @@ class Node:
             return temp
 
         if self.movement == "Load":
-            time_estimation, position = self.time_estimate()
+            time_estimation, position, name = self.time_estimate()
             start_pos = "Dock"
             end_pos = position
             movement_type = self.movement
-            temp = Step(start_pos, end_pos, time_estimation, movement_type)
+            temp = Step(start_pos, end_pos, time_estimation, movement_type, name)
             return temp
         if self.movement == "Unload":
-            time_estimation, position = self.time_estimate()
+            time_estimation, position, name = self.time_estimate()
             start_pos = position
             end_pos = "Dock"
             movement_type = self.movement
