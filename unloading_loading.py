@@ -1,5 +1,6 @@
 from utils import Item
 from utils import parse_manifest
+from utils import save_modified_manifest
 from states import Grid
 from states import to_grid
 from nodes import Node
@@ -232,9 +233,16 @@ def output_steps(steps):
     #     print(f"Operation type is {node_list[i].step.movement_type}; Start position {node_list[i].step.start_pos}, End position {node_list[i].step.end_pos}, Time estimated:{node_list[i].step.time_estimate}")
 
     # return steps
+def to_item_list(grid):
+    items: list["Item"] = []
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            items.append({"location": grid[i][j].position, "weight": grid[i][j].weight, "company": grid[i][j].name})
+    return items
 
-def get_steps(manifest, unload, load , h):
-    res = parse_manifest(manifest)
+def get_steps(file_name, unload, load , h):
+    with open(file_name) as f:
+        res = parse_manifest(f.read())
     start_ship  = to_grid(res) 
     Start_Node = Node(start_ship)
     final_node = unload_load(Start_Node, h ,unload, load)
@@ -242,33 +250,37 @@ def get_steps(manifest, unload, load , h):
     steps = []
     for i in range(1, len(node_list)):
         steps.append(node_list[i].step)
-    output_steps(steps)
+    # output_steps(steps)
+    item_list = to_item_list(final_node.ship)
+    # for item in item_list:
+    #     print(item)
+    save_modified_manifest(item_list, file_name)
     return steps
 
-
-files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
-unload_cases = [[("Cat", 1)], None,  [("Cow",1)], [("Doe",1)] ,  [("Hen",1), ("Pig",1)], [("Batons",1), ("Catfish",1)] ]
-load_cases = [None ,  [("Bat",1, 431)],  [("Bat",1, 532), ("Rat",1, 6317)], [("Nat",1, 2543)] , [("Nat",1, 153),("Rat",1,2321)] , [("Nat",1,2543)]] 
-for i in range(len(files)):
-    print("CURRENTLY PROCESSING:", files[i])
-    with open(files[i]) as f:
-        import time
-        print("no huestic")
-        start_time = time.time()
-        steps = get_steps(f.read(), unload_cases[i], load_cases[i],False)
-        end_time = time.time()
-        time_spent = end_time - start_time
-        print(time_spent, "seconds spent")
-        print('\n')
-for i in range(len(files)):
-    print("CURRENTLY PROCESSING:", files[i])
-    with open(files[i]) as f:
-        import time
-        print("huestic")
-        start_time = time.time()
-        steps = get_steps(f.read(), unload_cases[i], load_cases[i],True)
-        end_time = time.time()
-        time_spent = end_time - start_time
-        print(time_spent, "seconds spent")
-        print('\n')
-    
+if __name__ == "__main__":
+    files = ["ShipCase1.txt", "ShipCase2.txt", "ShipCase3.txt", "ShipCase4.txt", "ShipCase5.txt", "SilverQueen.txt"]
+    unload_cases = [[("Cat", 1)], None,  [("Cow",1)], [("Doe",1)] ,  [("Hen",1), ("Pig",1)], [("Batons",1), ("Catfish",1)] ]
+    load_cases = [None ,  [("Bat",1, 431)],  [("Bat",1, 532), ("Rat",1, 6317)], [("Nat",1, 2543)] , [("Nat",1, 153),("Rat",1,2321)] , [("Nat",1,2543)]] 
+    for i in range(len(files)):
+        print("CURRENTLY PROCESSING:", files[i])
+        with open(files[i]) as f:
+            import time
+            print("no huestic")
+            start_time = time.time()
+            steps = get_steps(files[i], unload_cases[i], load_cases[i],False)
+            end_time = time.time()
+            time_spent = end_time - start_time
+            print(time_spent, "seconds spent")
+            print('\n')
+    for i in range(len(files)):
+        print("CURRENTLY PROCESSING:", files[i])
+        with open(files[i]) as f:
+            import time
+            print("huestic")
+            start_time = time.time()
+            steps = get_steps(f.read(), unload_cases[i], load_cases[i],True)
+            end_time = time.time()
+            time_spent = end_time - start_time
+            print(time_spent, "seconds spent")
+            print('\n')
+        
