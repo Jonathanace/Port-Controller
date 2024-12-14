@@ -110,20 +110,16 @@ def upload_file(file_path=None):
         if 'file' not in request.files:
             return jsonify({'error': 'No file part'}), 400
         file = request.files['file']
+        ship_name = request.form.get('shipName')
+        print(ship_name)
         if file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
-    if file:
-        try:
-            os.remove(manifest_path)
-            
-        except:
-            pass
 
-        files = glob.glob(os.path.join(PLAN_FOLDER, '*'))
-        for remove_file in files:
+        remove_files = glob.glob(os.path.join(UPLOAD_FOLDER, '*'))
+        for remove_file in remove_files:
             app.logger.info(f'removing {remove_file}')
             os.remove(remove_file)
-        file.save(manifest_path)
+        file.save(os.path.join(UPLOAD_FOLDER, ship_name))
         app.logger.info('Manifest Saved')
         return jsonify(), 200 # FIXME: return ship's name here
 

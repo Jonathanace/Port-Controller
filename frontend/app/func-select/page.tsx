@@ -170,6 +170,7 @@ export function ManifestUpload({ onUpload }: ManifestUploadProps) {
       const shipName = file.name;
       const formData = new FormData();
       formData.append('file', file)
+      formData.append('shipName', shipName)
       const response = await fetch('http://localhost:5000/upload', {
         method: 'POST',
         body: formData
