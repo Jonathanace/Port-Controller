@@ -41,6 +41,9 @@ cmap = ListedColormap(colors)
 def get_manifest():
     return [open(entry.path, 'r').read() for entry in os.scandir('uploads/') if entry.is_file()][0]
 
+def get_manifest_path():
+    return next(os.scandir('uploads/')).path
+
 def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None):
     if prev_grid is None: # If no previous grid, generate a new grid from the manifest
         print('Generating Grid')
@@ -89,14 +92,14 @@ def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None):
     return grid, display_text
 
 def display_grid(grid: np.ndarray):
-    flipped_grid = np.flip(grid)
+    flipped_grid = np.flip(grid, axis=0)
     plt.imshow(flipped_grid, cmap=cmap, vmin=0, vmax=4)
     plt.show()
     return grid
 
 def save_grid(grid, step_num, display_text):
     image_path = os.path.join(PLAN_FOLDER, f'{step_num}.png')
-    flipped_grid = np.flip(grid)
+    flipped_grid = np.flip(grid, axis=0)
     plt.imshow(flipped_grid, cmap=cmap, vmin=0, vmax=4)
     plt.title(display_text)
     try:
@@ -123,6 +126,11 @@ def upload_file(file_path=None):
         for remove_file in remove_files:
             app.logger.info(f'removing {remove_file}')
             os.remove(remove_file)
+
+        remove_files = glob.glob(os.path.join(PLAN_FOLDER, '*'))
+        for remove_file in remove_files:
+            app.logger.info(f'removing {remove_file}')
+            os.remove(remove_file)
         file.save(os.path.join(UPLOAD_FOLDER, ship_name))
         app.logger.info('Manifest Saved')
         return jsonify(), 200 
@@ -141,11 +149,11 @@ def process_manifest():
         app.logger.warning('No parsing option passed!')
         return jsonify({'error': 'No parsing option passed'}), 400
     
-    manifest = get_manifest()
+    manifest_path = get_manifest_path()
     
     if parse_option == 'Balance':
         app.logger.info('Balance function selected')
-        steps = get_balancing_steps(manifest)
+        steps = get_balancing_steps(manifest_path)
         app.logger.info('Steps calculated for balancing operation')
         for step in steps:
             app.logger.info(step)
@@ -168,8 +176,8 @@ def get_containers():
 @app.route('/balance-manifest', methods=['POST'])
 def balance_manifest():
     app.logger.info('balance_manifest called')
-    manifest = get_manifest()
-    steps = get_balancing_steps(manifest)
+    manifest_path = get_manifest_path()
+    steps = get_balancing_steps(manifest_path)
     for step in steps:
         print(step)
     grid, _ = make_grid()
@@ -208,7 +216,7 @@ def load_unload_manifest():
         print(load_names_and_weights)
     print(f'load: {load}')
     print(f'unload: {unload}')
-    steps = get_unloading_steps(file_path=next(os.scandir('uploads/')).path,
+    steps = get_unloading_steps(file_path=get_manifest_path(),
                         file_name='test.txt',
                         unload=unload,
                         load=load,
