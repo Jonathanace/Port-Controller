@@ -54,7 +54,7 @@ export function LoadUnloadManifest() {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      items: ["recents", "home"],
+      items: [],
     },
   })
 
@@ -68,14 +68,17 @@ export function LoadUnloadManifest() {
   }, []);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    })
+    const payload = {
+      ...data,
+      namesAndWeights,
+    };
+    fetch('http://localhost:5000/load-unload-manifest', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
   }
 
   return (
@@ -138,8 +141,13 @@ export function LoadUnloadManifest() {
         </Label>
         <Textarea
         placeholder="Cat-1000,Dog-750"
+        value={namesAndWeights}
+        onChange={(e) => setNamesAndWeights(e.target.value)}
         />
-        <Button type="submit">Submit</Button>
+        <Button 
+        type="submit">
+          Submit
+        </Button>
       </form>
     </Form>
   )

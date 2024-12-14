@@ -101,7 +101,6 @@ def save_grid(grid, step_num, display_text):
     plt.savefig(image_path)
     return image_path
 
-
 @app.route('/upload', methods=['POST'])
 def upload_file(file_path=None):
     if file_path is not None:
@@ -200,6 +199,13 @@ def log_comment():
     save_to_logfile(comment)
     return jsonify(), 200
 
+@app.route('/load-unload-manifest', methods=['POST'])
+def load_unload_manifest():
+    app.logger.info('Load Unload Manifest Called')
+    data = request.get_json()
+    app.logger.info('Data received')
+    print(data.get('items'))
+    return jsonify(), 200
 
 if __name__ == '__main__':
     # balance_manifest()
