@@ -28,7 +28,19 @@ const FormSchema = z.object({
   }),
 });
 
-export function InputForm({ onNameSubmit, setHeaderText }: { onNameSubmit: (name: string) => void, setHeaderText: (text: string) => void }) {
+export const LogComment = (comment: string) => {
+  fetch('http://localhost:5000/log-comment',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({comment: comment})
+    }
+  )
+}
+
+export function InputForm({ onNameSubmit, setHeaderText, currentUser, setCurrentUser}: { onNameSubmit: (name: string) => void, setHeaderText: (text: string) => void, currentUser: string | null, setCurrentUser: (name: string | null) => void}) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -39,6 +51,11 @@ export function InputForm({ onNameSubmit, setHeaderText }: { onNameSubmit: (name
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     onNameSubmit(data.name);
+    if (currentUser) {
+      LogComment(`${currentUser} has logged out`)
+    }
+    
+    setCurrentUser(data.name);
     setHeaderText(`Welcome, ${data.name}!`);  // This line updates the global header text
     toast({
       title: "You submitted the following values:",
@@ -48,6 +65,7 @@ export function InputForm({ onNameSubmit, setHeaderText }: { onNameSubmit: (name
         </pre>
       ),
     });
+    LogComment(`${data.name} signs in.`)
     router.push('/func-select');
   }
 
@@ -79,6 +97,7 @@ export function InputForm({ onNameSubmit, setHeaderText }: { onNameSubmit: (name
 export default function Page() {
   const { setHeaderText } = useHeader();
   const [submittedName, setSubmittedName] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
 
   useEffect(() => {
     setHeaderText('Welcome!');
@@ -88,7 +107,12 @@ export default function Page() {
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <div className="row-span-2 flex flex-col justify-center h-full">
         <h1 className="text-2xl font-bold mb-4">Login</h1>
-        <InputForm onNameSubmit={setSubmittedName} setHeaderText={setHeaderText} />
+        <InputForm 
+        onNameSubmit={setSubmittedName} 
+        setHeaderText={setHeaderText} 
+        currentUser={currentUser} 
+        setCurrentUser={setCurrentUser}
+        />
         {submittedName && (
           <div className="mt-4 p-4 bg-blue-100 rounded-md">
             <h2 className="text-xl font-semibold">Submitted Name:</h2>
