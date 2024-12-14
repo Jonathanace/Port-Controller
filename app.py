@@ -44,7 +44,7 @@ def get_manifest():
 def get_manifest_path():
     return next(os.scandir('uploads/')).path
 
-def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None):
+def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None, cargo_weight=None):
     if prev_grid is None: # If no previous grid, generate a new grid from the manifest
         print('Generating Grid')
         grid = np.zeros((8, 12), dtype=np.int32)
@@ -67,7 +67,7 @@ def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None):
     # Visualize start and end position if necessary
     
     if start_pos and end_pos:
-        display_text = 'Move {cargo_name} from the {start_type} to the {end_type}'
+        display_text = 'Move {cargo_name} from the {start_type} to the {end_type}.\nCargo should weigh: {cargo_weight} lbs'
         print('start and end detected')
         if start_pos == 'Dock':
             cargo_name = cargo_name
@@ -85,7 +85,7 @@ def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None):
             end_type = 'Green Square'
             end_x, end_y = end_pos[0]-1, end_pos[1]-1
             grid[end_x, end_y] = 4 # (white->green)
-        display_text = display_text.format(cargo_name=cargo_name, start_type=start_type, end_type=end_type)
+        display_text = display_text.format(cargo_name=cargo_name, start_type=start_type, end_type=end_type, cargo_weight=cargo_weight)
     else: 
         display_text = "Initial grid"
         
@@ -183,7 +183,7 @@ def balance_manifest():
     grid, _ = make_grid()
     
     for step_num, step in enumerate(steps):
-        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name)
+        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name, cargo_weight=step.weight)
         image_path = save_grid(grid, step_num, display_text)
         # display_grid(grid)
 
@@ -225,7 +225,7 @@ def load_unload_manifest():
     grid, _ = make_grid()
     
     for step_num, step in enumerate(steps):
-        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name)
+        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name, cargo_weight=step.weight)
         image_path = save_grid(grid, step_num, display_text)
 
 
