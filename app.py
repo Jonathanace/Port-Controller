@@ -37,7 +37,7 @@ else:
 colors = ['white', 'black', 'gray', 'red', 'green']  
 cmap = ListedColormap(colors)
 
-def make_grid(prev_grid=None, start_pos=None, end_pos=None):
+def make_grid(prev_grid=None, start_pos=None, end_pos=None, name=None):
     if prev_grid is None: # If no previous grid, generate a new grid from the manifest
         print('Generating Grid')
         grid = np.zeros((8, 12), dtype=np.int32)
@@ -59,14 +59,29 @@ def make_grid(prev_grid=None, start_pos=None, end_pos=None):
 
 
     # Visualize start and end position if necessary
+    
     if start_pos and end_pos:
+        display_text = 'Move the cargo from the {start_type} to the {end_type}'
         print('start and end detected')
-        start_x, start_y = start_pos[0]-1, start_pos[1]-1
-        end_x, end_y = end_pos[0]-1, end_pos[1]-1
-        grid[start_x, start_y] = 3 # (gray->red)
-        grid[end_x, end_y] = 4 # (white->green)
+        if start_pos == 'Dock':
+            start_type = 'Dock'
+            pass
+        else:
+            start_type = 'Red Square'
+            start_x, start_y = start_pos[0]-1, start_pos[1]-1
+            grid[start_x, start_y] = 3 # (gray->red)
 
-    return grid
+        if end_pos == 'Dock':
+            end_type = 'Dock'
+        else:
+            end_type = 'Green Square'
+            end_x, end_y = end_pos[0]-1, end_pos[1]-1
+            grid[end_x, end_y] = 4 # (white->green)
+        display_text = display_text.format(start_type=start_type, end_type=end_type)
+    else: 
+        display_text = "Initial grid"
+        
+    return grid, display_text
 
 def display_grid(grid: np.ndarray):
     flipped_grid = np.flip(grid)
@@ -74,10 +89,11 @@ def display_grid(grid: np.ndarray):
     plt.show()
     return grid
 
-def save_grid(grid, step_num):
+def save_grid(grid, step_num, display_text):
     image_path = os.path.join(PLAN_FOLDER, f'{step_num}.png')
     flipped_grid = np.flip(grid)
     plt.imshow(flipped_grid, cmap=cmap, vmin=0, vmax=4)
+    plt.title(display_text)
     try:
         os.remove(image_path)
     except:
@@ -162,12 +178,12 @@ def balance_manifest():
     steps = get_steps(manifest)
     for step in steps:
         print(step)
-    grid = make_grid()
+    grid, _ = make_grid()
     
     for step_num, step in enumerate(steps):
-        grid = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos)
-        image_path = save_grid(grid, step_num)
-        display_grid(grid)
+        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, name='placeholder_name')
+        image_path = save_grid(grid, step_num, display_text)
+        # display_grid(grid)
 
     return jsonify(), 200
     
