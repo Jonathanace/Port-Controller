@@ -164,15 +164,23 @@ class Node:
             time_estimation, position, name = self.time_estimate()
             start_pos = "Dock"
             end_pos = position
+            s1 = end_pos[0] - 1
+            s2 = end_pos[1] - 1
+            temp_grid = self.ship[s1][s2]
+            weight = temp_grid.weight
             movement_type = self.movement
-            temp = Step(start_pos, end_pos, time_estimation, movement_type, name)
+            temp = Step(start_pos, end_pos, time_estimation, movement_type, name, weight=weight)
             return temp
         if self.movement == "Unload":
             time_estimation, position, name = self.time_estimate()
             start_pos = position
             end_pos = "Dock"
+            s1 = start_pos[0] - 1
+            s2 = start_pos[1] - 1
+            temp_grid = self.previous_node.ship[s1][s2]
+            weight = temp_grid.weight
             movement_type = self.movement
-            temp = Step(start_pos, end_pos, time_estimation, movement_type)
+            temp = Step(start_pos, end_pos, time_estimation, movement_type, weight=weight)
             return temp
     def check_unload_load(self):
         if self.movement == "Unload" and self.previous_node.movement == "Load":

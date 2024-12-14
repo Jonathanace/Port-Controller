@@ -263,24 +263,36 @@ if __name__ == "__main__":
     load_cases = [None ,  [("Bat",1, 431)],  [("Bat",1, 532), ("Rat",1, 6317)], [("Nat",1, 2543)] , [("Nat",1, 153),("Rat",1,2321)] , [("Nat",1,2543)]] 
     for i in range(len(files)):
         print("CURRENTLY PROCESSING:", files[i])
-        with open(files[i]) as f:
-            import time
-            print("no huestic")
-            start_time = time.time()
-            steps = get_steps(files[i], unload_cases[i], load_cases[i],False)
-            end_time = time.time()
-            time_spent = end_time - start_time
-            print(time_spent, "seconds spent")
-            print('\n')
+        import time
+        print("no huestic")
+        start_time = time.time()
+        steps = get_steps(files[i], unload_cases[i], load_cases[i],False)
+        for square in steps:
+            print("Operation type is \'", square.movement_type, end=" \'; ")
+            print("Weight of Container:", square.weight, end=", ")
+            print("Start position:", square.start_pos, end=", ")
+            print("End position:", square.end_pos, end=", ")
+            print("Time estimated:", square.time_estimate, end=" ")
+            print("minutes")
+        end_time = time.time()
+        time_spent = end_time - start_time
+        print(time_spent, "seconds spent")
+        print('\n')
     for i in range(len(files)):
         print("CURRENTLY PROCESSING:", files[i])
-        with open(files[i]) as f:
-            import time
-            print("huestic")
-            start_time = time.time()
-            steps = get_steps(files[i], unload_cases[i], load_cases[i],True)
-            end_time = time.time()
-            time_spent = end_time - start_time
-            print(time_spent, "seconds spent")
-            print('\n')
+        import time
+        print("huestic")
+        start_time = time.time()
+        steps = get_steps(files[i], unload_cases[i], load_cases[i],True)
+        for square in steps:
+            print("Operation type is \'", square.movement_type, end=" \'; ")
+            print("Weight of Container:", square.weight, end=", ")
+            print("Start position:", square.start_pos, end=", ")
+            print("End position:", square.end_pos, end=", ")
+            print("Time estimated:", square.time_estimate, end=" ")
+            print("minutes")
+        end_time = time.time()
+        time_spent = end_time - start_time
+        print(time_spent, "seconds spent")
+        print('\n')
         
