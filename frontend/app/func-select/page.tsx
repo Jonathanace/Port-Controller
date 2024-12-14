@@ -151,9 +151,10 @@ export function LoadUnloadManifest() {
         value={namesAndWeights}
         onChange={(e) => setNamesAndWeights(e.target.value)}
         />
-        <Button 
+        <Button
+        disabled={isDisabled}
         type="submit">
-          Submit
+          {isDisabled ? 'Processing manifest. Please wait.' : 'Submit Manifest'}
         </Button>
       </form>
     </Form>
