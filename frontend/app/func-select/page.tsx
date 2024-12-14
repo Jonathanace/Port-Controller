@@ -14,6 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { useHeader } from "@/context/HeaderContext";
 import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea"
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 
 
