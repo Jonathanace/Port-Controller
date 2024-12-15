@@ -41,6 +41,12 @@ else:
 colors = ['white', 'black', 'gray', 'red', 'green']  
 cmap = ListedColormap(colors)
 
+def log_manifest_open():
+    manifest = get_manifest()
+    parsed_manifest = parse_manifest(manifest)
+    container_names = [{'id': i['company'], 'label': i['company']} for i in parsed_manifest if i['company'] not in ['UNUSED', 'NAN']]
+    save_to_logfile(f'{get_ship_name()}.txt is opened, there are {len(container_names)} containers on the ship. ')
+
 def get_manifest():
     return [open(entry.path, 'r').read() for entry in os.scandir('uploads/') if entry.is_file()][0]
 
@@ -186,7 +192,7 @@ def get_containers():
 @app.route('/balance-manifest', methods=['POST'])
 def balance_manifest():
     app.logger.info('balance_manifest called')
-    save_to_logfile(f'{get_ship_name()} manifest opened.')
+    log_manifest_open()
     manifest_path = get_manifest_path()
     steps = get_balancing_steps(manifest_path)
     grid, _ = make_grid()
@@ -222,7 +228,7 @@ def log_comment():
 def load_unload_manifest():
     app.logger.info('Load Unload Request Called')
     data = request.get_json()
-    save_to_logfile(f'{get_ship_name()} manifest opened.')
+    log_manifest_open()
     unload_names = data.get("items")
     load_names_and_weights = [i.split("-") for i in data.get("namesAndWeights").split(",")]
     unload = [(i, 1) for i in unload_names]
