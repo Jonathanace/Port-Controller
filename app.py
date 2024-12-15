@@ -18,6 +18,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
+global employee_name
+employee_name = None
+
 ### Setup Manifest Upload Folder
 UPLOAD_FOLDER = 'uploads'
 manifest_path = os.path.join(UPLOAD_FOLDER, 'manifest.txt')
@@ -196,6 +199,7 @@ def balance_manifest():
     
 @app.route('/log-comment', methods=['POST'])
 def log_comment():
+    global employee_name
     app.logger.info('log_comment called')
     try:
         data = request.get_json()
@@ -203,7 +207,13 @@ def log_comment():
     except:
         pass
     comment = data['comment']
-    app.logger.info(f'saving to logfile: {comment}')
+    if comment.endswith('signs in.'):
+        if employee_name:
+            print(f"Previous employee name found: {employee_name}")
+            save_to_logfile(f"{employee_name} signs out.")
+        else:
+            employee_name = comment.rstrip(" signs in.")
+            print('No previous employee name found.')
     save_to_logfile(comment)
     return jsonify(), 200
 

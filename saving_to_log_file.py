@@ -5,6 +5,7 @@ import pytz
 # Saves a string of text to a logfile in the following format: Month Day Year Time Text
 # Parameters are event (actual comment) followed by optional operator name
 def save_to_logfile(event: str, operator=""):
+    print(f'Saving to logfile: {event}')
 
     pst_timezone = pytz.timezone("America/Los_Angeles")
     date = datetime.now(pst_timezone)
