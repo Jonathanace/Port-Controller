@@ -21,6 +21,12 @@ from matplotlib.colors import ListedColormap
 global employee_name
 employee_name = None
 
+global operation_type
+operation_type = None
+
+global cargo_names
+cargo_names = []
+
 ### Setup Manifest Upload Folder
 UPLOAD_FOLDER = 'uploads'
 manifest_path = os.path.join(UPLOAD_FOLDER, 'manifest.txt')
@@ -126,6 +132,7 @@ def save_grid(grid, step_num, display_text):
 
 @app.route('/upload', methods=['POST'])
 def upload_file(file_path=None):
+    global cargo_names
     if file_path is not None:
         file = file_path.read()
     else:
@@ -149,6 +156,7 @@ def upload_file(file_path=None):
         app.logger.info('Uploading Manifest...')
         file.save(os.path.join(UPLOAD_FOLDER, ship_name))
         app.logger.info('Manifest Successfully Uploaded')
+        cargo_names = []
         return jsonify(), 200 
 
 # @app.route('/process-manifest', methods=['POST'])
@@ -191,6 +199,9 @@ def get_containers():
 
 @app.route('/balance-manifest', methods=['POST'])
 def balance_manifest():
+    global operation_type
+    global cargo_names
+    operation_type = 'is balanced'
     app.logger.info('balance_manifest called')
     log_manifest_open()
     manifest_path = get_manifest_path()
@@ -198,15 +209,17 @@ def balance_manifest():
     grid, _ = make_grid()
     
     for step_num, step in enumerate(steps):
+        cargo_names.append(step.container_name)
         grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name, cargo_weight=step.weight)
         image_path = save_grid(grid, step_num, display_text)
         # display_grid(grid)
-
+    print(f'cargo names: {cargo_names}')
     return jsonify(), 200
     
 @app.route('/log-comment', methods=['POST'])
 def log_comment():
     global employee_name
+    global operation_type
     app.logger.info('log_comment called')
     try:
         data = request.get_json()
@@ -221,11 +234,15 @@ def log_comment():
         else:
             employee_name = comment.rstrip(" signs in.")
             print('No previous employee name found.')
+    if comment == "Operation completed":
+        comment = f"\"{get_ship_name()}\" is {operation_type}"
     save_to_logfile(comment)
     return jsonify(), 200
 
 @app.route('/load-unload-manifest', methods=['POST'])
 def load_unload_manifest():
+    global operation_type
+    operation_type = "is offloaded"
     app.logger.info('Load Unload Request Called')
     data = request.get_json()
     log_manifest_open()
@@ -250,7 +267,6 @@ def load_unload_manifest():
     for step_num, step in enumerate(steps):
         grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name, cargo_weight=step.weight)
         image_path = save_grid(grid, step_num, display_text)
-
 
 
     return jsonify(), 200

@@ -76,7 +76,11 @@ export function PlanCarousel() {
                   {image === 'static-card' ? (
                     <div>
                       You have completed all steps! <br />
-                      Click <a onClick={() => router.push('/func-select')} className="text-black-500 underline cursor-pointer">here</a> to return.
+                      Click <a onClick={() => {
+                        LogComment('Operation completed')
+                        router.push('/func-select')
+                      }} className="text-black-500 underline cursor-pointer">here</a> to return.
+
                     </div>
 
                   ) : (
