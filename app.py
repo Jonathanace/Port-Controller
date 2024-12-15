@@ -24,8 +24,12 @@ employee_name = None
 global operation_type
 operation_type = None
 
-global cargo_names
-cargo_names = []
+global cargo_comments
+cargo_comments = []
+
+global completed_step_num
+completed_step_num = 0
+
 
 ### Setup Manifest Upload Folder
 UPLOAD_FOLDER = 'uploads'
@@ -64,7 +68,7 @@ def get_ship_name():
     ship_name = os.path.basename(manifest_path).replace(".txt", "")
     return ship_name
 
-def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None, cargo_weight=None):
+def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None, cargo_weight=None, time=None):
     if prev_grid is None: # If no previous grid, generate a new grid from the manifest
         # print('Generating Grid')
         grid = np.zeros((8, 12), dtype=np.int32)
@@ -87,7 +91,7 @@ def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None, car
     # Visualize start and end position if necessary
     
     if start_pos and end_pos:
-        display_text = 'Move {cargo_name} from the {start_type} to the {end_type}.\nCargo should weigh: {cargo_weight} lbs'
+        display_text = 'Move {cargo_name} from the {start_type} to the {end_type}.\nCargo should weigh: {cargo_weight} lbs\nEstimated time: {time}'
         # print('start and end detected')
         if start_pos == 'Dock':
             cargo_name = cargo_name
@@ -105,7 +109,7 @@ def make_grid(prev_grid=None, start_pos=None, end_pos=None, cargo_name=None, car
             end_type = 'Green Square'
             end_x, end_y = end_pos[0]-1, end_pos[1]-1
             grid[end_x, end_y] = 4 # (white->green)
-        display_text = display_text.format(cargo_name=cargo_name, start_type=start_type, end_type=end_type, cargo_weight=cargo_weight)
+        display_text = display_text.format(cargo_name=cargo_name, start_type=start_type, end_type=end_type, cargo_weight=cargo_weight, time=time)
     else: 
         display_text = "Initial grid"
         
@@ -121,18 +125,24 @@ def save_grid(grid, step_num, display_text):
     image_path = os.path.join(PLAN_FOLDER, f'{step_num}.png')
     flipped_grid = np.flip(grid, axis=0)
     plt.xticks(range(grid.shape[1]))
+    
     plt.imshow(flipped_grid, cmap=cmap, vmin=0, vmax=4)
     plt.title(f'{get_ship_name()}\n{display_text}')
     try:
         os.remove(image_path)
     except:
         pass
-    plt.savefig(image_path)
+
+    fig = plt.gcf()
+    fig.set_size_inches(10, 6)
+    fig.tight_layout()
+    plt.savefig(image_path, bbox_inches='tight', pad_inches=0.1)
+    plt.close(fig)
     return image_path
 
 @app.route('/upload', methods=['POST'])
 def upload_file(file_path=None):
-    global cargo_names
+    global cargo_comments
     if file_path is not None:
         file = file_path.read()
     else:
@@ -156,7 +166,7 @@ def upload_file(file_path=None):
         app.logger.info('Uploading Manifest...')
         file.save(os.path.join(UPLOAD_FOLDER, ship_name))
         app.logger.info('Manifest Successfully Uploaded')
-        cargo_names = []
+        cargo_comments = []
         return jsonify(), 200 
 
 # @app.route('/process-manifest', methods=['POST'])
@@ -194,13 +204,15 @@ def get_containers():
     parsed_manifest = parse_manifest(manifest)
     container_names = [{'id': i['company'], 'label': i['company']} for i in parsed_manifest if i['company'] not in ['UNUSED', 'NAN']]
     
-    app.logger.info(f'container_names: {container_names}')
+    # app.logger.info(f'container_names: {container_names}')
     return jsonify(container_names), 200
 
 @app.route('/balance-manifest', methods=['POST'])
 def balance_manifest():
+    global cargo_comments
     global operation_type
-    global cargo_names
+    global completed_step_num
+    completed_step_num = 0
     operation_type = 'is balanced'
     app.logger.info('balance_manifest called')
     log_manifest_open()
@@ -209,17 +221,19 @@ def balance_manifest():
     grid, _ = make_grid()
     
     for step_num, step in enumerate(steps):
-        cargo_names.append(step.container_name)
-        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name, cargo_weight=step.weight)
+        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name, cargo_weight=step.weight, time=step.time_estimate)
+        cargo_comments.append('')
         image_path = save_grid(grid, step_num, display_text)
         # display_grid(grid)
-    print(f'cargo names: {cargo_names}')
+    
     return jsonify(), 200
     
 @app.route('/log-comment', methods=['POST'])
 def log_comment():
     global employee_name
     global operation_type
+    global completed_step_num
+    global cargo_comments
     app.logger.info('log_comment called')
     try:
         data = request.get_json()
@@ -235,13 +249,22 @@ def log_comment():
             employee_name = comment.rstrip(" signs in.")
             print('No previous employee name found.')
     if comment == "Operation completed":
-        comment = f"\"{get_ship_name()}\" is {operation_type}"
-    save_to_logfile(comment)
+        comment = f"Finished a cycle. Manifest {get_ship_name()}.txt is written to desktop and a reminder pop-up to operator to send file was displayed"
+
+    if comment.startswith("Completed step"):
+        comment = cargo_comments[completed_step_num]
+        completed_step_num += 1
+    if comment != "":
+        save_to_logfile(comment)
     return jsonify(), 200
 
 @app.route('/load-unload-manifest', methods=['POST'])
 def load_unload_manifest():
+    global completed_step_num
+    global cargo_comments
     global operation_type
+    cargo_comments = []
+    completed_step_num = 0
     operation_type = "is offloaded"
     app.logger.info('Load Unload Request Called')
     data = request.get_json()
@@ -255,7 +278,7 @@ def load_unload_manifest():
         # print(load_names_and_weights)
         pass
     print(f'load: {load}')
-    print(f'unload: {unload}')
+    print(f'unload: {[i[0] for i in unload]}')
     steps = get_unloading_steps(file_path=get_manifest_path(),
                         file_name=get_ship_name(),
                         unload=unload,
@@ -265,10 +288,19 @@ def load_unload_manifest():
     grid, _ = make_grid()
     
     for step_num, step in enumerate(steps):
-        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name, cargo_weight=step.weight)
+        operation = None
+        if step.start_pos == "Dock":
+            operation = "onloaded."
+        elif step.end_pos == "Dock":
+            operation = "offloaded."
+        if operation is not None:
+            cargo_comments.append(f'"{step.container_name}" is {operation}')
+        else:
+            cargo_comments.append("")
+        grid, display_text = make_grid(prev_grid=grid, start_pos=step.start_pos, end_pos=step.end_pos, cargo_name=step.name, cargo_weight=step.weight, time=step.time_estimate)
         image_path = save_grid(grid, step_num, display_text)
-
-
+    # print(f'Cargo comments: {cargo_comments}')
+ 
     return jsonify(), 200
 
 if __name__ == '__main__':

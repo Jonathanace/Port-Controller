@@ -65,6 +65,11 @@ export function PlanCarousel() {
     });
   }, [api]);
 
+  const handleNext = () => {
+    LogComment("Completed step"); 
+    if (api) api.scrollNext(); 
+  };
+
   return (
     <div className="mx-auto max-w-xs">
       <Carousel setApi={setApi} className="w-full max-w-xs">
@@ -96,7 +101,7 @@ export function PlanCarousel() {
           ))}
         </CarouselContent>
 
-        <CarouselNext />
+        <CarouselNext onClick={handleNext}/>
       </Carousel>
       {images[current - 1] !== 'static-card' && ( 
         <div className="py-2 text-center text-sm text-muted-foreground"> 
