@@ -145,34 +145,34 @@ def upload_file(file_path=None):
         app.logger.info('Manifest Successfully Uploaded')
         return jsonify(), 200 
 
-@app.route('/process-manifest', methods=['POST'])
-def process_manifest():
-    app.logger.info('Process Manifest called')
-    data = request.get_json()
-    if data:
-        app.logger.info('Data received')
-    else:
-        app.logger.warning('Data not recieved')
+# @app.route('/process-manifest', methods=['POST'])
+# def process_manifest():
+#     app.logger.info('Process Manifest called')
+#     data = request.get_json()
+#     if data:
+#         app.logger.info('Data received')
+#     else:
+#         app.logger.warning('Data not recieved')
 
-    parse_option = data.get('parse_option')
-    if not parse_option: 
-        app.logger.warning('No parsing option passed!')
-        return jsonify({'error': 'No parsing option passed'}), 400
+#     parse_option = data.get('parse_option')
+#     if not parse_option: 
+#         app.logger.warning('No parsing option passed!')
+#         return jsonify({'error': 'No parsing option passed'}), 400
     
-    manifest_path = get_manifest_path()
+#     manifest_path = get_manifest_path()
     
-    if parse_option == 'Balance':
-        app.logger.info('Balance function selected')
-        steps = get_balancing_steps(manifest_path)
-        app.logger.info('Steps calculated for balancing operation')
-        for step in steps:
-            app.logger.info(step)
-    elif parse_option == 'Load/Unload':
-        pass # FIXME
-    else:
-        warning = f'Invalid parsing option passed: {parse_option}'
-        app.logger.warning(warning)
-        return jsonify({'error': warning}), 400
+#     if parse_option == 'Balance':
+#         app.logger.info('Balance function selected')
+#         steps = get_balancing_steps(manifest_path)
+#         app.logger.info('Steps calculated for balancing operation')
+#         for step in steps:
+#             app.logger.info(step)
+#     elif parse_option == 'Load/Unload':
+#         pass # FIXME
+#     else:
+#         warning = f'Invalid parsing option passed: {parse_option}'
+#         app.logger.warning(warning)
+#         return jsonify({'error': warning}), 400
     
 @app.route('/get-containers', methods=['GET'])
 def get_containers():
@@ -186,6 +186,7 @@ def get_containers():
 @app.route('/balance-manifest', methods=['POST'])
 def balance_manifest():
     app.logger.info('balance_manifest called')
+    save_to_logfile(f'{get_ship_name()} manifest opened.')
     manifest_path = get_manifest_path()
     steps = get_balancing_steps(manifest_path)
     grid, _ = make_grid()
@@ -221,6 +222,7 @@ def log_comment():
 def load_unload_manifest():
     app.logger.info('Load Unload Request Called')
     data = request.get_json()
+    save_to_logfile(f'{get_ship_name()} manifest opened.')
     unload_names = data.get("items")
     load_names_and_weights = [i.split("-") for i in data.get("namesAndWeights").split(",")]
     unload = [(i, 1) for i in unload_names]
